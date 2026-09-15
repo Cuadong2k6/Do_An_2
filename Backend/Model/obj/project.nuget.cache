@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "zV3dNUA8x5I=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\ThinkCrab\\Documents\\Nơi chứa file bài tập\\C#\\source\\Do_An_2\\Backend\\Model\\Model.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\ThinkCrab\\.nuget\\packages\\dapper\\2.1.86\\dapper.2.1.86.nupkg.sha512"
+  ],
+  "logs": []
+}
