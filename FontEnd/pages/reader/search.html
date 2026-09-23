@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tra Cứu Sách - Thư Viện</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/layout.css">
+    <link rel="stylesheet" href="../../css/components.css">
+</head>
+<body>
+
+<div class="app-wrapper">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fa-solid fa-book-open"></i> Xin chào Bạn đọc</h2>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="search.html" class="active"><i class="fa-solid fa-magnifying-glass"></i> Tra Cứu Sách</a></li>
+                <li><a href="history.html"><i class="fa-solid fa-clock-rotate-left"></i> Lịch Sử Mượn</a></li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer" style="padding: 15px;">
+            <button id="logoutBtn" class="btn btn-secondary btn-block"><i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng Xuất</button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="top-header">
+            <div></div> <!-- Empty for flex spacing -->
+            <div class="header-user">
+                <span style="font-weight: 500;" id="userNameDisplay">Reader User</span>
+                <div class="avatar" style="background-color: var(--secondary-color);">R</div>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <div class="content-container">
+            <h1 style="margin-bottom: 24px; color: var(--primary-color);">Tra Cứu Tài Liệu</h1>
+            
+            <div class="card">
+                <form id="searchForm" class="d-flex align-center" style="gap:15px;flex-wrap:wrap;">
+                    <div style="flex:1;min-width:200px;">
+                        <input type="text" class="form-control" placeholder="Nhập tên sách, tác giả hoặc ISBN..." id="searchInput">
+                    </div>
+                    <select id="searchTheloai" class="form-control" style="width:auto;min-width:170px">
+                        <option value="">Tất cả thể loại</option>
+                    </select>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa-solid fa-magnifying-glass"></i> Tìm Kiếm
+                    </button>
+                </form>
+            </div>
+
+            <div class="card mt-2">
+                <h3>Kết Quả Tìm Kiếm</h3>
+                <div id="ketQuaTimKiem" class="mt-1">
+                    <p class="text-muted">Đang tải danh sách sách...</p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script src="../../js/api.js"></script>
+<script src="../../js/auth.js"></script>
+<script src="../../js/search.js"></script>
+<script>
+    // Kiểm tra quyền truy cập (cho reader và admin)
+    requireAuth(['reader', 'admin']);
+    
+    // Hiển thị tên người dùng
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if(user.name) document.getElementById('userNameDisplay').textContent = user.name;
+</script>
+</body>
+</html>

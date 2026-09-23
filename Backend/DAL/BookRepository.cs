@@ -44,16 +44,39 @@ namespace DAL
         {
             await _db.ExecuteAsync("sp_book_create", new
             {
-                book_id    = model.book_id,
-                title      = model.title,
-                isbn       = model.isbn,
-                tacgia     = model.tacgia,
-                theloai    = model.theloai,
-                nxb        = model.nxb,
-                namxuatban = model.namxuatban,
-                mota       = model.mota,
-                image_url  = model.image_url
+                book_id      = model.book_id,
+                title        = model.title,
+                isbn         = model.isbn,
+                tacgia       = model.tacgia,
+                theloai      = model.theloai,
+                nxb          = model.nxb,
+                namxuatban   = model.namxuatban,
+                mota         = model.mota,
+                image_url    = model.image_url,
+                tongsobancao = model.tongsobancao
             });
+        }
+
+        public async Task capnhatsach(BookModel model)
+        {
+            await _db.ExecuteAsync("sp_book_update", new
+            {
+                book_id      = model.book_id,
+                title        = model.title,
+                isbn         = model.isbn,
+                tacgia       = model.tacgia,
+                theloai      = model.theloai,
+                nxb          = model.nxb,
+                namxuatban   = model.namxuatban,
+                mota         = model.mota,
+                image_url    = model.image_url,
+                tongsobancao = model.tongsobancao
+            });
+        }
+
+        public async Task xoasach(Guid bookId)
+        {
+            await _db.ExecuteAsync("sp_book_delete", new { book_id = bookId });
         }
     }
 }

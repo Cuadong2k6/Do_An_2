@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Độc Giả - Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/layout.css?v=3">
+    <link rel="stylesheet" href="../../css/components.css">
+</head>
+<body>
+
+<div class="app-wrapper">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fa-solid fa-book-open"></i> Thư Viện Admin</h2>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="dashboard.html"><i class="fa-solid fa-chart-line"></i> Tổng Quan</a></li>
+                <li><a href="books.html"><i class="fa-solid fa-book"></i> Quản Lý Sách</a></li>
+                <li><a href="readers.html" class="active"><i class="fa-solid fa-users"></i> Độc Giả</a></li>
+                <li><a href="loans.html"><i class="fa-solid fa-hand-holding-hand"></i> Mượn - Trả</a></li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer" style="padding: 15px;">
+            <button id="logoutBtn" class="btn btn-secondary btn-block"><i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng Xuất</button>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-header">
+            <div class="header-search">
+                <i class="fa-solid fa-magnifying-glass text-muted"></i>
+                <input type="text" id="searchInput" placeholder="Tìm kiếm: tên, SĐT, email, số thẻ..." oninput="timkiemDocGia()">
+                <select id="filterTrangthai" onchange="timkiemDocGia()" title="Lọc trạng thái thẻ"
+                    style="border:none;background:transparent;color:#555;font-size:0.9rem;outline:none;max-width:130px">
+                    <option value="">Mọi trạng thái</option>
+                    <option value="0">Hoạt động</option>
+                    <option value="1">Hết hạn</option>
+                    <option value="2">Bị khoá</option>
+                </select>
+            </div>
+            <div class="header-user">
+                <span style="font-weight: 500;" id="userNameDisplay">Admin User</span>
+                <div class="avatar">A</div>
+            </div>
+        </header>
+
+        <div class="content-container table-page">
+            <div class="d-flex justify-between align-center" style="margin-bottom: 8px;">
+                <h1 style="color: var(--primary-color);">Quản Lý Độc Giả</h1>
+                <button class="btn btn-primary" onclick="moModalThemReader()"><i class="fa-solid fa-plus"></i> Thêm Độc Giả</button>
+            </div>
+            
+            <div class="card">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Họ Tên</th>
+                                <th>Số Thẻ</th>
+                                <th>Email</th>
+                                <th>Số Điện Thoại</th>
+                                <th>Hạn Thẻ</th>
+                                <th>Trạng Thái</th>
+                                <th>Thao Tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="readerTableBody">
+                            <tr><td colspan="7" style="text-align:center">Đang tải...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Phân trang (10 hàng/trang) -->
+                <div class="d-flex justify-between align-center mt-2 pt-2" style="border-top: 1px solid var(--border-color);">
+                    <span class="text-muted" id="readerPageInfo" style="font-size: 0.85rem;"></span>
+                    <div id="readerPagination" style="display: flex; gap: 5px;"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Modal Thêm/Sửa Độc Giả -->
+<div id="readerModal" style="display:none;position:fixed;z-index:1000;inset:0;background:rgba(0,0,0,0.5);overflow-y:auto;padding:20px 10px;">
+    <div style="background:#fff;margin:2vh auto;padding:20px 25px;border-radius:8px;width:100%;max-width:520px;max-height:calc(100vh - 40px);overflow-y:auto;box-sizing:border-box;">
+        <h2 id="readerModalTitle" style="margin-top:0">Thêm Độc Giả Mới</h2>
+        <form id="readerForm">
+            <div style="margin-bottom:12px">
+                <label>Họ Tên <span style="color:red">*</span></label>
+                <input type="text" id="readerHoten" class="form-control" style="width:100%;padding:8px;box-sizing:border-box" required>
+            </div>
+            <div style="margin-bottom:12px">
+                <label>Email <span style="color:red">*</span></label>
+                <input type="email" id="readerEmail" class="form-control" style="width:100%;padding:8px;box-sizing:border-box" required>
+            </div>
+            <div style="margin-bottom:12px;display:flex;gap:10px">
+                <div style="flex:1">
+                    <label>Số Thẻ <span style="color:red">*</span></label>
+                    <input type="text" id="readerSoThe" class="form-control" style="width:100%;padding:8px;box-sizing:border-box" placeholder="VD: THE-003" required>
+                </div>
+                <div style="flex:1">
+                    <label>Hạn Thẻ</label>
+                    <input type="date" id="readerNgayHetHan" class="form-control" style="width:100%;padding:8px;box-sizing:border-box">
+                </div>
+            </div>
+            <div style="margin-bottom:12px">
+                <label>Số Sách Mượn Tối Đa</label>
+                <input type="number" id="readerSoMuon" class="form-control" style="width:100%;padding:8px;box-sizing:border-box" value="3" min="1">
+            </div>
+            <div id="fieldMatKhau" style="margin-bottom:12px">
+                <label>Mật Khẩu (mặc định: email)</label>
+                <input type="text" id="readerMatkhau" class="form-control" style="width:100%;padding:8px;box-sizing:border-box" placeholder="Để trống = dùng email làm mật khẩu">
+            </div>
+            <div style="margin-bottom:12px;display:flex;gap:10px">
+                <div style="flex:1">
+                    <label>Số Điện Thoại</label>
+                    <input type="text" id="readerSdt" class="form-control" style="width:100%;padding:8px;box-sizing:border-box">
+                </div>
+            </div>
+            <div style="margin-bottom:12px">
+                <label>Địa Chỉ</label>
+                <input type="text" id="readerDiachi" class="form-control" style="width:100%;padding:8px;box-sizing:border-box">
+            </div>
+            <div id="readerModalError" style="color:red;margin-bottom:10px;display:none"></div>
+            <div style="display:flex;justify-content:flex-end;gap:10px">
+                <button type="button" class="btn btn-secondary" onclick="dongModalReader()">Hủy</button>
+                <button type="submit" class="btn btn-primary" id="btnSaveReader">Lưu</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="../../js/api.js?v=2"></script>
+<script src="../../js/auth.js"></script>
+<script src="../../js/readers.js?v=2"></script>
+<script>
+    requireAuth(['admin','Admin']);
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if(user.name) document.getElementById('userNameDisplay').textContent = user.name;
+</script>
+</body>
+</html>

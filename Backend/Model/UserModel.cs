@@ -7,16 +7,16 @@ namespace Model
 {
     public class UserModel
     {
-        public string user_id { get; set; }
-        public string hoten { get; set; }
+        public Guid user_id { get; set; }
+        public string hoten { get; set; } = string.Empty;
         public DateTime? ngaysinh { get; set; }
-        public string diachi { get; set; }
-        public string gioitinh { get; set; }
-        public string email { get; set; }
-        public string taikhoan { get; set; }
-        public string matkhau { get; set; }
-        public string role { get; set; }
-        public string token { get; set; }
-        public string image_url { get; set; }
+        public string diachi { get; set; } = string.Empty;
+        public string gioitinh { get; set; } = string.Empty;
+        public string email { get; set; } = string.Empty;
+        public string taikhoan { get; set; } = string.Empty;
+        public string matkhau { get; set; } = string.Empty;
+        public string role { get; set; } = string.Empty;
+        public string token { get; set; } = string.Empty;
+        public string image_url { get; set; } = string.Empty;
     }
 }

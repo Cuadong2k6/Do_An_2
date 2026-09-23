@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Thư Viện</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/layout.css">
+    <link rel="stylesheet" href="../../css/components.css">
+</head>
+<body>
+
+<div class="app-wrapper">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fa-solid fa-book-open"></i> Thư Viện Admin</h2>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="dashboard.html" class="active"><i class="fa-solid fa-chart-line"></i> Tổng Quan</a></li>
+                <li><a href="books.html"><i class="fa-solid fa-book"></i> Quản Lý Sách</a></li>
+                <li><a href="readers.html"><i class="fa-solid fa-users"></i> Độc Giả</a></li>
+                <li><a href="loans.html"><i class="fa-solid fa-hand-holding-hand"></i> Mượn - Trả</a></li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer" style="padding: 15px;">
+            <button id="logoutBtn" class="btn btn-secondary btn-block"><i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng Xuất</button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="top-header">
+            <div class="header-search">
+                <i class="fa-solid fa-magnifying-glass text-muted"></i>
+                <input type="text" placeholder="Tìm kiếm nhanh...">
+            </div>
+            <div class="header-user">
+                <span style="font-weight: 500;" id="userNameDisplay">Admin User</span>
+                <div class="avatar">A</div>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <div class="content-container">
+            <h1 style="margin-bottom: 24px; color: var(--primary-color);">Bảng Điều Khiển</h1>
+            
+            <div class="d-flex" style="gap: 20px; flex-wrap: wrap;">
+                <!-- Stat Card 1 -->
+                <div class="card" style="flex: 1; min-width: 200px; display: flex; align-items: center; gap: 15px;">
+                    <div style="font-size: 2.5rem; color: var(--primary-color);"><i class="fa-solid fa-book"></i></div>
+                    <div>
+                        <div class="text-muted" style="font-size: 0.9rem;">Tổng Số Sách</div>
+                        <div style="font-size: 1.5rem; font-weight: bold;">1,254</div>
+                    </div>
+                </div>
+                <!-- Stat Card 2 -->
+                <div class="card" style="flex: 1; min-width: 200px; display: flex; align-items: center; gap: 15px;">
+                    <div style="font-size: 2.5rem; color: var(--secondary-color);"><i class="fa-solid fa-users"></i></div>
+                    <div>
+                        <div class="text-muted" style="font-size: 0.9rem;">Độc Giả Đăng Ký</div>
+                        <div style="font-size: 1.5rem; font-weight: bold;">458</div>
+                    </div>
+                </div>
+                <!-- Stat Card 3 -->
+                <div class="card" style="flex: 1; min-width: 200px; display: flex; align-items: center; gap: 15px;">
+                    <div style="font-size: 2.5rem; color: var(--danger-color);"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                    <div>
+                        <div class="text-muted" style="font-size: 0.9rem;">Quá Hạn Trả</div>
+                        <div style="font-size: 1.5rem; font-weight: bold;">32</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-2">
+                <h3>Giao Dịch Gần Đây</h3>
+                <div class="table-responsive mt-1">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Mã Giao Dịch</th>
+                                <th>Độc Giả</th>
+                                <th>Ngày Mượn</th>
+                                <th>Trạng Thái</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>#LN-001</td>
+                                <td>Nguyễn Văn A</td>
+                                <td>15/09/2026</td>
+                                <td><span class="badge badge-warning">Đang mượn</span></td>
+                            </tr>
+                            <tr>
+                                <td>#LN-002</td>
+                                <td>Trần Thị B</td>
+                                <td>10/09/2026</td>
+                                <td><span class="badge badge-danger">Quá hạn</span></td>
+                            </tr>
+                            <tr>
+                                <td>#LN-003</td>
+                                <td>Lê Văn C</td>
+                                <td>01/09/2026</td>
+                                <td><span class="badge badge-success">Đã trả</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script src="../../js/api.js"></script>
+<script src="../../js/auth.js"></script>
+<script>
+    // Kiểm tra quyền truy cập (chỉ Admin mới được vào)
+    requireAuth(['admin']);
+    
+    // Hiển thị tên người dùng
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if(user.name) document.getElementById('userNameDisplay').textContent = user.name;
+</script>
+</body>
+</html>

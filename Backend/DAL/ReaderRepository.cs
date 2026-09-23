@@ -21,10 +21,10 @@ namespace DAL
             conn.Open();
 
             var p = new DynamicParameters();
-            p.Add("@keyword",    keyword,    DbType.String);
-            p.Add("@trangthai",  trangthai,  DbType.Int32);
-            p.Add("@page_index", pageIndex,  DbType.Int32);
-            p.Add("@page_size",  pageSize,   DbType.Int32);
+            p.Add("@keyword",    keyword,   DbType.String);
+            p.Add("@trangthai",  trangthai, DbType.Int32);
+            p.Add("@page_index", pageIndex, DbType.Int32);
+            p.Add("@page_size",  pageSize,  DbType.Int32);
             p.Add("@total",      dbType: DbType.Int64, direction: ParameterDirection.Output);
 
             var items = await conn.QueryAsync<ReaderModel>("sp_reader_getlist", p, commandType: CommandType.StoredProcedure);
@@ -47,8 +47,9 @@ namespace DAL
                 sodienthoai = model.sodienthoai,
                 diachi      = model.diachi,
                 so_the      = model.so_the,
-                matkhau     = model.email, // Mặc định = email (hash ở BLL)
-                ngayhethan  = model.ngayhethan
+                matkhau     = model.matkhau,
+                ngayhethan  = model.ngayhethan,
+                somughin    = model.somughin
             });
         }
 
@@ -60,8 +61,24 @@ namespace DAL
                 hoten       = model.hoten,
                 sodienthoai = model.sodienthoai,
                 diachi      = model.diachi,
-                trangthai   = model.trangthai
+                trangthai   = model.trangthai,
+                ngayhethan  = model.ngayhethan,
+                somughin    = model.somughin
             });
+        }
+
+        public async Task giathanthu(Guid readerId, DateTime ngayhethan)
+        {
+            await _db.ExecuteAsync("sp_reader_renew", new
+            {
+                reader_id  = readerId,
+                ngayhethan = ngayhethan
+            });
+        }
+
+        public async Task xoadocgia(Guid readerId)
+        {
+            await _db.ExecuteAsync("sp_reader_delete", new { reader_id = readerId });
         }
     }
 }

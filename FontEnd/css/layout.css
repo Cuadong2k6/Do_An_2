@@ -1,0 +1,193 @@
+/* ==========================================================================
+   Layout (Header, Sidebar, Main Content)
+   ========================================================================== */
+
+/* App Wrapper for Dashboard */
+.app-wrapper {
+    display: flex;
+    height: 100vh;      /* Cố định chiều cao màn hình → body không cuộn cả trang */
+    width: 100%;
+    overflow: hidden;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 260px;
+    background-color: var(--card-bg);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-sm);
+    z-index: 10;
+    transition: width var(--transition-normal);
+}
+
+.sidebar-header {
+    padding: var(--spacing-lg) var(--spacing-md);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar-header h2 {
+    font-size: 1.25rem;
+    color: var(--primary-color);
+    letter-spacing: 0.5px;
+}
+
+.sidebar-nav {
+    padding: var(--spacing-md) 0;
+    flex: 1;
+}
+
+.sidebar-nav ul {
+    list-style: none;
+}
+
+.sidebar-nav li {
+    margin-bottom: var(--spacing-sm);
+}
+
+.sidebar-nav a {
+    display: flex;
+    align-items: center;
+    padding: var(--spacing-sm) var(--spacing-lg);
+    color: var(--text-muted);
+    font-weight: 500;
+    border-left: 3px solid transparent;
+}
+
+.sidebar-nav a:hover, .sidebar-nav a.active {
+    background-color: rgba(79, 70, 229, 0.05); /* Light primary */
+    color: var(--primary-color);
+    border-left-color: var(--primary-color);
+}
+
+.sidebar-nav i {
+    margin-right: var(--spacing-md);
+    font-size: 1.2rem;
+}
+
+/* Main Content Area */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0; /* Prevents overflow issues */
+}
+
+/* Header */
+.top-header {
+    height: 56px;   /* Gọn hơn 70px → giải phóng thêm chiều cao cho bảng */
+    background-color: var(--card-bg);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.header-search {
+    display: flex;
+    align-items: center;
+    background-color: var(--bg-color);
+    border-radius: var(--border-radius-lg);
+    padding: 8px 16px;
+    width: 300px;
+}
+
+.header-search input {
+    border: none;
+    background: transparent;
+    outline: none;
+    margin-left: 8px;
+    width: 100%;
+    color: var(--text-main);
+}
+
+.header-user {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    cursor: pointer;
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+/* Content Container */
+.content-container {
+    padding: var(--spacing-lg);
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+/* Trang bảng (Sách / Độc Giả / Mượn-Trả):
+   header + tiêu đề + bộ lọc cố định, CHỈ PHẦN HÀNG BẢNG được cuộn */
+.content-container.table-page {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 10px 16px;                 /* gọn hơn 24px → thêm không gian cho bảng */
+}
+
+.table-page > .card {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 8px 12px;                  /* thay padding 24px của .card */
+    margin-bottom: 0;
+}
+
+.table-page > .card > .table-responsive {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+/* Tiêu đề bảng dính trên đỉnh khi cuộn hàng */
+.table-page .table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background-color: #f9fafb;
+}
+
+/* === Tối ưu chiều cao: hiện NHIỀU HÀNG nhất có thể — KHÔNG đổi cỡ chữ === */
+.table-page h1 {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.table-page .table th,
+.table-page .table td {
+    padding: 5px var(--spacing-md);     /* hàng ~35px (gốc 16px×2 = 54px) */
+}
+
+.table-page .card > .d-flex:last-child {    /* thanh phân trang dưới bảng */
+    margin-top: 6px;
+    padding-top: 6px;
+}
+
+/* Full Screen Centered (For Login/Register) */
+.full-screen-center {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f6f8fd 0%, #f1f5f9 100%);
+}

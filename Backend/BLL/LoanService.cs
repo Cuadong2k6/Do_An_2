@@ -47,9 +47,17 @@ namespace BLL
                 listjson_chitiet = listjsonChitiet
             };
 
-            await _loanRepo.taomoimuontra(loan);
-            _logger.LogInformation("Tạo phiếu mượn {LoanId} cho bạn đọc {ReaderID}", loan.loan_id, readerId);
-            return ResponseModel.Ok(loan.loan_id, "Tạo phiếu mượn thành công.");
+            try
+            {
+                await _loanRepo.taomoimuontra(loan);
+                _logger.LogInformation("Tạo phiếu mượn {LoanId} cho bạn đọc {ReaderID}", loan.loan_id, readerId);
+                return ResponseModel.Ok(loan.loan_id, "Tạo phiếu mượn thành công.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi tạo phiếu mượn cho bạn đọc {ReaderID}", readerId);
+                return ResponseModel.Fail(ex.Message);
+            }
         }
 
         /// <summary>
@@ -57,10 +65,18 @@ namespace BLL
         /// </summary>
         public async Task<ResponseModel> trasach(Guid loanId)
         {
-            await _loanRepo.trasach(loanId);
+            try
+            {
+                await _loanRepo.trasach(loanId);
 
-            // Tự động tính phạt nếu quá hạn
-            await _fineRepo.tinhtoantienphat(loanId);
+                // Tự động tính phạt nếu quá hạn
+                await _fineRepo.tinhtoantienphat(loanId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi trả sách phiếu mượn {LoanId}", loanId);
+                return ResponseModel.Fail(ex.Message);
+            }
 
             var fine = await _fineRepo.laytienphattheomuon(loanId);
             if (fine != null && !fine.is_paid)
@@ -69,18 +85,47 @@ namespace BLL
                 return ResponseModel.Ok(fine, $"Trả sách thành công. Tiền phạt: {fine.amount:N0} đ");
             }
 
-            return ResponseModel.Ok((object?)null, "Trả sách thành công, không có phạt.");
+            return ResponseModel.Ok(null, "Trả sách thành công, không có phạt.");
         }
 
-        public async Task<ResponseModel> danhsachsachquahan()
+        /// <summary>Danh sách sách quá hạn (tìm kiếm + phân trang)</summary>
+        public async Task<ResponseModel> danhsachsachquahan(string? keyword, int page, int pageSize)
         {
-            var items = await _loanRepo.laydanhsachsachquahan();
-            return ResponseModel.Ok(items, totalItems: items.Count());
+            var (items, total) = await _loanRepo.laydanhsachsachquahan(keyword, page, pageSize);
+            return ResponseModel.Ok(items, totalItems: total, page: page, pageSize: pageSize);
         }
 
         public async Task<ResponseModel> lichsumuon(Guid readerId, int page, int pageSize)
         {
             var (items, total) = await _loanRepo.laydanhsachmuontratheobandoc(readerId, page, pageSize);
+            return ResponseModel.Ok(items, totalItems: total, page: page, pageSize: pageSize);
+        }
+
+        /// <summary>
+        /// Gia hạn phiếu mượn thêm số ngày.
+        /// </summary>
+        public async Task<ResponseModel> giathanphieu(Guid loanId, int themngay)
+        {
+            if (themngay <= 0) return ResponseModel.Fail("Số ngày gia hạn phải lớn hơn 0.");
+            try
+            {
+                await _loanRepo.giathanphieu(loanId, themngay);
+                _logger.LogInformation("Gia hạn phiếu mượn {LoanId} thêm {ThemNgay} ngày", loanId, themngay);
+                return ResponseModel.Ok(null, $"Gia hạn thêm {themngay} ngày thành công.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi gia hạn phiếu mượn {LoanId}", loanId);
+                return ResponseModel.Fail(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Danh sách phiếu đang mượn (tìm kiếm + phân trang).
+        /// </summary>
+        public async Task<ResponseModel> danhsachdangmuon(string? keyword, int page, int pageSize)
+        {
+            var (items, total) = await _loanRepo.laydanhsachdangmuon(keyword, page, pageSize);
             return ResponseModel.Ok(items, totalItems: total, page: page, pageSize: pageSize);
         }
     }

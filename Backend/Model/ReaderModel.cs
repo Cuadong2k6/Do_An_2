@@ -7,11 +7,12 @@ namespace Model
     public class ReaderModel
     {
         public Guid reader_id { get; set; }
-        public string hoten { get; set; }
-        public string email { get; set; }
-        public string sodienthoai { get; set; }
-        public string diachi { get; set; }
-        public string so_the { get; set; }
+        public string hoten { get; set; } = string.Empty;
+        public string email { get; set; } = string.Empty;
+        public string matkhau { get; set; } = string.Empty;
+        public string sodienthoai { get; set; } = string.Empty;
+        public string diachi { get; set; } = string.Empty;
+        public string so_the { get; set; } = string.Empty;
         public DateTime? ngaycap { get; set; }
         public DateTime? ngayhethan { get; set; }
         public int trangthai { get; set; }

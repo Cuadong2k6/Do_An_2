@@ -34,9 +34,21 @@ namespace DAL
             });
         }
 
-        public async Task<IEnumerable<LoanModel>> laydanhsachsachquahan()
+        public async Task<(IEnumerable<LoanModel> items, long total)> laydanhsachsachquahan(
+            string? keyword, int pageIndex = 1, int pageSize = 10)
         {
-            return await _db.QueryAsync<LoanModel>("sp_loan_get_overdue", new { current_date = DateTime.Now });
+            using var conn = _db.GetConnection();
+            conn.Open();
+
+            var p = new DynamicParameters();
+            p.Add("@current_date", DateTime.Now);
+            p.Add("@keyword",    keyword,   DbType.String);
+            p.Add("@page_index", pageIndex, DbType.Int32);
+            p.Add("@page_size",  pageSize,  DbType.Int32);
+            p.Add("@total",      dbType: DbType.Int64, direction: ParameterDirection.Output);
+
+            var items = await conn.QueryAsync<LoanModel>("sp_loan_get_overdue", p, commandType: CommandType.StoredProcedure);
+            return (items, p.Get<long>("@total"));
         }
 
         public async Task<(IEnumerable<LoanModel> items, long total)> laydanhsachmuontratheobandoc(
@@ -54,6 +66,27 @@ namespace DAL
             var items = await conn.QueryAsync<LoanModel>("sp_loan_get_by_reader", p, commandType: CommandType.StoredProcedure);
             long total = p.Get<long>("@total");
             return (items, total);
+        }
+
+        public async Task giathanphieu(Guid loanId, int themngay)
+        {
+            await _db.ExecuteAsync("sp_loan_renew", new { loan_id = loanId, themngay = themngay });
+        }
+
+        public async Task<(IEnumerable<LoanModel> items, long total)> laydanhsachdangmuon(
+            string? keyword, int pageIndex = 1, int pageSize = 10)
+        {
+            using var conn = _db.GetConnection();
+            conn.Open();
+
+            var p = new DynamicParameters();
+            p.Add("@keyword",    keyword,   DbType.String);
+            p.Add("@page_index", pageIndex, DbType.Int32);
+            p.Add("@page_size",  pageSize,  DbType.Int32);
+            p.Add("@total",      dbType: DbType.Int64, direction: ParameterDirection.Output);
+
+            var items = await conn.QueryAsync<LoanModel>("sp_loan_get_active", p, commandType: CommandType.StoredProcedure);
+            return (items, p.Get<long>("@total"));
         }
     }
 }

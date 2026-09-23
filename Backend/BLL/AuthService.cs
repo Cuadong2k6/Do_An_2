@@ -37,7 +37,7 @@ namespace BLL
 
             if (user == null) return ResponseModel.Fail("Sai tài khoản hoặc mật khẩu.");
 
-            user.token = taojwttoken(user.user_id, user.hoten, user.role);
+            user.token = taojwttoken(user.user_id.ToString(), user.hoten, user.role);
             return ResponseModel.Ok(user, "Đăng nhập thành công.");
         }
 

@@ -27,9 +27,17 @@ namespace BLL
             if (model.sotien <= 0) return ResponseModel.Fail("Số tiền không hợp lệ.");
             model.pay_id       = Guid.NewGuid();
             model.payment_date = DateTime.Now;
-            await _fineRepo.thutienphattrehan(model);
-            _logger.LogInformation("Thu tiền phạt fine_id={FineId}, số tiền={SoTien}", model.fine_id, model.sotien);
-            return ResponseModel.Ok(model.pay_id, "Thu tiền phạt thành công.");
+            try
+            {
+                await _fineRepo.thutienphattrehan(model);
+                _logger.LogInformation("Thu tiền phạt fine_id={FineId}, số tiền={SoTien}", model.fine_id, model.sotien);
+                return ResponseModel.Ok(model.pay_id, "Thu tiền phạt thành công.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi thu tiền phạt fine_id={FineId}", model.fine_id);
+                return ResponseModel.Fail(ex.Message);
+            }
         }
     }
 }

@@ -13,7 +13,8 @@ namespace Model
         public DateTime expiry_date { get; set; }
         public int trangthai { get; set; }
         // Join fields
-        public string book_title { get; set; }
-        public string reader_hoten { get; set; }
+        public string book_title { get; set; } = string.Empty;
+        public string reader_hoten { get; set; } = string.Empty;
+        public string reader_so_the { get; set; } = string.Empty;
     }
 }

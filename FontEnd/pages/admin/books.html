@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Sách - Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/layout.css?v=3">
+    <link rel="stylesheet" href="../../css/components.css">
+</head>
+<body>
+
+<div class="app-wrapper">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fa-solid fa-book-open"></i> Thư Viện Admin</h2>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="dashboard.html"><i class="fa-solid fa-chart-line"></i> Tổng Quan</a></li>
+                <li><a href="books.html" class="active"><i class="fa-solid fa-book"></i> Quản Lý Sách</a></li>
+                <li><a href="readers.html"><i class="fa-solid fa-users"></i> Độc Giả</a></li>
+                <li><a href="loans.html"><i class="fa-solid fa-hand-holding-hand"></i> Mượn - Trả</a></li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer" style="padding: 15px;">
+            <button id="logoutBtn" class="btn btn-secondary btn-block"><i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng Xuất</button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="top-header">
+            <div class="header-search">
+                <i class="fa-solid fa-magnifying-glass text-muted"></i>
+                <input type="text" id="searchInput" placeholder="Tìm kiếm: tên, ISBN, tác giả..." oninput="timkiemSach()">
+            </div>
+            <div class="header-user">
+                <span style="font-weight: 500;" id="userNameDisplay">Admin User</span>
+                <div class="avatar">A</div>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <div class="content-container table-page">
+            <div class="d-flex justify-between align-center" style="margin-bottom: 8px;">
+                <h1 style="color: var(--primary-color);">Quản Lý Danh Mục Sách</h1>
+                <button class="btn btn-primary" onclick="openAddBookModal()"><i class="fa-solid fa-plus"></i> Thêm Sách Mới</button>
+            </div>
+
+            <!-- Bộ lọc tìm kiếm nâng cao (thể loại / tác giả / năm) -->
+            <div class="d-flex" style="gap:8px;margin-bottom:8px;flex-wrap:wrap;">
+                <select id="filterTheloai" class="form-control" onchange="locSach()" style="flex:1;min-width:150px">
+                    <option value="">Tất cả thể loại</option>
+                </select>
+                <input type="text" id="filterTacgia" class="form-control" placeholder="Tác giả..."
+                    style="flex:1;min-width:150px" oninput="timkiemSach()">
+                <select id="filterNam" class="form-control" onchange="locSach()" style="flex:1;min-width:130px">
+                    <option value="">Tất cả năm XB</option>
+                </select>
+                <button class="btn btn-secondary" onclick="datLaiBoLoc()">Đặt lại</button>
+            </div>
+
+            <div class="card">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Tên Sách</th>
+                                <th>ISBN</th>
+                                <th>Tác Giả</th>
+                                <th>Trạng Thái</th>
+                                <th>Thao Tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bookTableBody">
+                            <!-- Dữ liệu được đổ từ JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Phân trang (10 hàng/trang) -->
+                <div class="d-flex justify-between align-center mt-2 pt-2" style="border-top: 1px solid var(--border-color);">
+                    <span class="text-muted" id="bookPageInfo" style="font-size: 0.85rem;"></span>
+                    <div id="bookPagination" style="display: flex; gap: 5px;"></div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<!-- Modal Thêm/Sửa Sách -->
+<div id="bookModal" class="modal" style="display:none;position:fixed;z-index:1000;inset:0;background-color:rgba(0,0,0,0.5);overflow-y:auto;padding:20px 10px;">
+    <div class="modal-content" style="background-color:#fff;margin:2vh auto;padding:20px 25px;border-radius:8px;width:100%;max-width:520px;max-height:calc(100vh - 40px);overflow-y:auto;box-sizing:border-box;">
+        <h2 id="bookModalTitle" style="margin-top: 0;">Thêm Sách Mới</h2>
+        <form id="bookForm">
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px;">Tên Sách <span style="color:red">*</span></label>
+                <input type="text" id="bookTitle" class="form-control" style="width: 100%; padding: 8px; box-sizing: border-box;" required>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px;">ISBN <span style="color:red">*</span></label>
+                <input type="text" id="bookIsbn" class="form-control" style="width: 100%; padding: 8px; box-sizing: border-box;" required>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px;">Tác Giả</label>
+                <input type="text" id="bookAuthor" class="form-control" style="width: 100%; padding: 8px; box-sizing: border-box;">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px;">Thể Loại</label>
+                <input type="text" id="bookCategory" class="form-control" style="width: 100%; padding: 8px; box-sizing: border-box;">
+            </div>
+            <div style="margin-bottom: 15px; display: flex; gap: 10px;">
+                <div style="flex: 1;">
+                    <label style="display: block; margin-bottom: 5px;">Nhà XB</label>
+                    <input type="text" id="bookPublisher" class="form-control" style="width: 100%; padding: 8px; box-sizing: border-box;">
+                </div>
+                <div style="flex: 1;">
+                    <label style="display: block; margin-bottom: 5px;">Năm XB</label>
+                    <input type="number" id="bookYear" class="form-control" style="width: 100%; padding: 8px; box-sizing: border-box;">
+                </div>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px;">Tổng số bản sao</label>
+                <input type="number" id="bookTotalCopies" class="form-control" style="width: 100%; padding: 8px; box-sizing: border-box;" value="1" min="1">
+            </div>
+            <div id="bookModalError" style="color: red; margin-bottom: 10px; display: none;"></div>
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" class="btn btn-secondary" onclick="closeBookModal()">Hủy</button>
+                <button type="submit" class="btn btn-primary" id="btnSaveBook">Lưu Sách</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="../../js/api.js?v=2"></script>
+<script src="../../js/auth.js"></script>
+<script src="../../js/books.js?v=2"></script>
+<script>
+    requireAuth(['admin']);
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if(user.name) document.getElementById('userNameDisplay').textContent = user.name;
+</script>
+</body>
+</html>

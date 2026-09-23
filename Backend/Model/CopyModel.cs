@@ -10,10 +10,11 @@ namespace Model
         public Guid book_id { get; set; }
         public int? shelf_id { get; set; }
         public int status { get; set; }
-        public string mabancao { get; set; }
+        public string mabancao { get; set; } = string.Empty;
         public DateTime? ngaynhap { get; set; }
         // Join fields
-        public string book_title { get; set; }
-        public string shelf_location { get; set; }
+        public string book_title { get; set; } = string.Empty;
+        public string isbn { get; set; } = string.Empty;
+        public string shelf_location { get; set; } = string.Empty;
     }
 }

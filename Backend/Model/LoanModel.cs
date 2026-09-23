@@ -12,11 +12,11 @@ namespace Model
         public DateTime due_date { get; set; }
         public DateTime? return_date { get; set; }
         public int trangthai { get; set; }
-        public string ghichu { get; set; }
+        public string ghichu { get; set; } = string.Empty;
         // JSON danh sách copy_id mượn (truyền xuống SP)
-        public string listjson_chitiet { get; set; }
+        public string listjson_chitiet { get; set; } = string.Empty;
         // Join fields
-        public string reader_hoten { get; set; }
-        public string reader_so_the { get; set; }
+        public string reader_hoten { get; set; } = string.Empty;
+        public string reader_so_the { get; set; } = string.Empty;
     }
 }
