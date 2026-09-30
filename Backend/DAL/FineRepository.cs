@@ -1,5 +1,7 @@
-using DAL.Helper;
-using Model;
+﻿using DAL.Helper;
+using Dapper;
+using Model.Loan;
+using System.Data;
 
 namespace DAL
 {

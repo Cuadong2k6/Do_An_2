@@ -1,6 +1,20 @@
+﻿using DAL.Helper;
 using DAL;
+using Dapper;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Model;
+using Microsoft.IdentityModel.Tokens;
+using Model.Reader;
+using Model.Shared;
+using Model.Shelf;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
+using System.Data;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text.Json;
+using System.Text;
 
 namespace BLL
 {
@@ -52,6 +66,21 @@ namespace BLL
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Lỗi cập nhật kệ sách {ShelfId}", shelfId);
+                return ResponseModel.Fail(ex.Message);
+            }
+        }
+
+        public async Task<ResponseModel> xoake(int shelfId)
+        {
+            try
+            {
+                await _shelfRepo.xoake(shelfId);
+                _logger.LogInformation("Xoá kệ sách {ShelfId}", shelfId);
+                return ResponseModel.Ok(null, "Xoá kệ sách thành công.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi xoá kệ sách {ShelfId}", shelfId);
                 return ResponseModel.Fail(ex.Message);
             }
         }

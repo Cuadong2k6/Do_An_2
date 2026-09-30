@@ -1,6 +1,6 @@
+﻿using DAL.Helper;
 using Dapper;
-using DAL.Helper;
-using Model;
+using Model.Loan;
 using System.Data;
 
 namespace DAL
@@ -21,6 +21,7 @@ namespace DAL
                 loan_id          = model.loan_id,
                 reader_id        = model.reader_id,
                 due_date         = model.due_date,
+                loan_date        = model.loan_date,
                 listjson_chitiet = model.listjson_chitiet
             });
         }

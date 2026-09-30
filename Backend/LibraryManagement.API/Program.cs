@@ -2,9 +2,11 @@ using BLL;
 using DAL;
 using DAL.Helper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using System.IO;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -107,7 +109,23 @@ app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Library Management API v1");
-    c.RoutePrefix = string.Empty; // Swagger tại root "/"
+    c.RoutePrefix = "swagger"; // Swagger tại "/swagger" để không xung đột root
+});
+
+// Serve default files (index.html) from Frontend folder
+app.UseDefaultFiles(new DefaultFilesOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "Frontend")),
+    RequestPath = ""
+});
+
+// Serve static files from Frontend folder
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "Frontend")),
+    RequestPath = ""
 });
 
 app.UseSerilogRequestLogging();

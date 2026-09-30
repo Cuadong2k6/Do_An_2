@@ -1,3 +1,4 @@
+﻿using Model;
 using System.Data;
 
 namespace DAL.Helper

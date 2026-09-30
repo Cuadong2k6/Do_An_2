@@ -1,6 +1,6 @@
+﻿using DAL.Helper;
 using Dapper;
-using DAL.Helper;
-using Model;
+using Model.Copy;
 using System.Data;
 
 namespace DAL
@@ -15,7 +15,7 @@ namespace DAL
         }
 
         public async Task<(IEnumerable<CopyModel> items, long total)> danhsachbansao(
-            Guid? bookId, int? status, int pageIndex = 1, int pageSize = 10)
+            Guid? bookId, int? status, int? shelfId, int pageIndex = 1, int pageSize = 10)
         {
             using var conn = _db.GetConnection();
             conn.Open();
@@ -23,6 +23,7 @@ namespace DAL
             var p = new DynamicParameters();
             p.Add("@book_id",    bookId,    DbType.Guid);
             p.Add("@status",     status,    DbType.Int32);
+            p.Add("@shelf_id",   shelfId,   DbType.Int32);
             p.Add("@page_index", pageIndex, DbType.Int32);
             p.Add("@page_size",  pageSize,  DbType.Int32);
             p.Add("@total",      dbType: DbType.Int64, direction: ParameterDirection.Output);
@@ -56,6 +57,11 @@ namespace DAL
                 shelf_id = model.shelf_id,
                 status   = model.status
             });
+        }
+
+        public async Task xoabansao(Guid copyId)
+        {
+            await _db.ExecuteAsync("sp_copy_delete", new { copy_id = copyId });
         }
     }
 }

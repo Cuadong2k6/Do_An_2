@@ -1,6 +1,20 @@
+﻿using DAL.Helper;
 using DAL;
+using Dapper;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Model;
+using Microsoft.IdentityModel.Tokens;
+using Model.Book;
+using Model.Reader;
+using Model.Shared;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
+using System.Data;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text.Json;
+using System.Text;
 
 namespace BLL
 {

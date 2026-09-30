@@ -1,7 +1,8 @@
-using BLL;
+﻿using BLL;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Model;
+using Model.Copy;
+using Model.Shared;
 
 namespace LibraryManagement.API.Controllers
 {
@@ -16,16 +17,17 @@ namespace LibraryManagement.API.Controllers
             _copyService = copyService;
         }
 
-        /// <summary>Danh sách bản sao (lọc theo sách/trạng thái + phân trang)</summary>
+        /// <summary>Danh sách bản sao (lọc theo sách/trạng thái/kệ + phân trang)</summary>
         [HttpGet]
         [Authorize(Roles = "Admin,ThuThu")]
         public async Task<IActionResult> danhsachbansao(
             [FromQuery] Guid?  bookId,
             [FromQuery] int?   status,
+            [FromQuery] int?   shelfId,
             [FromQuery] int    page     = 1,
             [FromQuery] int    pageSize = 10)
         {
-            var result = await _copyService.danhsachbansao(bookId, status, page, pageSize);
+            var result = await _copyService.danhsachbansao(bookId, status, shelfId, page, pageSize);
             return Ok(result);
         }
 
@@ -53,6 +55,15 @@ namespace LibraryManagement.API.Controllers
         public async Task<IActionResult> capnhatbansao(Guid id, [FromBody] CopyModel model)
         {
             var result = await _copyService.capnhatbansao(id, model);
+            return result.success ? Ok(result) : BadRequest(result);
+        }
+
+        /// <summary>Xoá bản sao (chỉ khi chưa từng mượn)</summary>
+        [HttpDelete("{id:guid}")]
+        [Authorize(Roles = "Admin,ThuThu")]
+        public async Task<IActionResult> xoabansao(Guid id)
+        {
+            var result = await _copyService.xoabansao(id);
             return result.success ? Ok(result) : BadRequest(result);
         }
     }

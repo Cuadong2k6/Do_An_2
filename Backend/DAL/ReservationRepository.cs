@@ -1,6 +1,6 @@
+﻿using DAL.Helper;
 using Dapper;
-using DAL.Helper;
-using Model;
+using Model.Reservation;
 using System.Data;
 
 namespace DAL

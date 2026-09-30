@@ -1,7 +1,8 @@
-using BLL;
+﻿using BLL;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Model;
+using Model.Shared;
+using Model.Shelf;
 
 namespace LibraryManagement.API.Controllers
 {
@@ -43,6 +44,15 @@ namespace LibraryManagement.API.Controllers
         public async Task<IActionResult> capnhatke(int id, [FromBody] ShelfModel model)
         {
             var result = await _shelfService.capnhatke(id, model);
+            return result.success ? Ok(result) : BadRequest(result);
+        }
+
+        /// <summary>Xoá kệ sách (chỉ khi chưa chứa bản sao)</summary>
+        [HttpDelete("{id:int}")]
+        [Authorize(Roles = "Admin,ThuThu")]
+        public async Task<IActionResult> xoake(int id)
+        {
+            var result = await _shelfService.xoake(id);
             return result.success ? Ok(result) : BadRequest(result);
         }
     }

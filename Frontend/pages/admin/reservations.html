@@ -1,0 +1,107 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Đặt Chỗ - Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/layout.css">
+    <link rel="stylesheet" href="../../css/components.css">
+</head>
+<body>
+
+<div class="app-wrapper">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fa-solid fa-book-open"></i> Thư Viện Admin</h2>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="dashboard.html"><i class="fa-solid fa-chart-line"></i> Tổng Quan</a></li>
+                <li><a href="books.html"><i class="fa-solid fa-book"></i> Quản Lý Sách</a></li>
+                <li><a href="readers.html"><i class="fa-solid fa-users"></i> Độc Giả</a></li>
+                <li><a href="loans.html"><i class="fa-solid fa-hand-holding-hand"></i> Mượn - Trả</a></li>
+                <li><a href="reservations.html" class="active"><i class="fa-solid fa-calendar-check"></i> Đặt Chỗ</a></li>
+                <li><a href="fines.html"><i class="fa-solid fa-money-bill-wave"></i> Tiền Phạt</a></li>
+                <li><a href="copies.html"><i class="fa-solid fa-copy"></i> Bản Sao Sách</a></li>
+                <li><a href="shelves.html"><i class="fa-solid fa-warehouse"></i> Kệ Sách</a></li>
+                <li><a href="reports.html"><i class="fa-solid fa-chart-bar"></i> Báo Cáo</a></li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer" style="padding: 15px;">
+            <button id="logoutBtn" class="btn btn-secondary btn-block"><i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng Xuất</button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="top-header">
+            <div class="header-search">
+                <i class="fa-solid fa-magnifying-glass text-muted"></i>
+                <input type="text" id="resSearchInput" placeholder="Tìm: tên Độc Giả, số thẻ, tên sách..." oninput="TimkiemDatCho()">
+            </div>
+            <div class="header-user">
+                <span style="font-weight: 500;" id="userNameDisplay">Admin User</span>
+                <div class="avatar">A</div>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <div class="content-container table-page">
+            <div class="d-flex justify-between align-center" style="margin-bottom: 8px;">
+                <h1 style="color: var(--primary-color);">Quản Lý Đặt Chỗ Sách</h1>
+            </div>
+
+            <!-- Tab chuyển đổi trạng thái -->
+            <div style="display:flex;gap:8px;margin-bottom:8px;">
+                <button id="resTabWaiting" class="btn btn-primary" onclick="ChuyenTabDatCho(0)">Đang chờ (0)</button>
+                <button id="resTabReceived" class="btn btn-secondary" onclick="ChuyenTabDatCho(1)">Đã nhận (1)</button>
+                <button id="resTabCancelled" class="btn btn-secondary" onclick="ChuyenTabDatCho(2)">Đã huỷ (2)</button>
+                <button id="resTabExpired" class="btn btn-secondary" onclick="ChuyenTabDatCho(3)">Hết hạn (3)</button>
+                <button id="resTabAll" class="btn btn-secondary" onclick="ChuyenTabDatCho(null)">Tất cả</button>
+            </div>
+
+            <div class="card">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Mã Đặt Chỗ</th>
+                                <th>Độc Giả</th>
+                                <th>Sách</th>
+                                <th>Ngày Đặt</th>
+                                <th>Hạn Nhận</th>
+                                <th>Trạng Thái</th>
+                                <th>Thao Tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resTableBody">
+                            <tr><td colspan="7" style="text-align:center">Đang tải dữ liệu...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Phân trang -->
+                <div class="d-flex justify-between align-center mt-2 pt-2" style="border-top: 1px solid var(--border-color);">
+                    <span class="text-muted" id="resPageInfo" style="font-size: 0.85rem;"></span>
+                    <div id="resPagination" style="display: flex; gap: 5px;"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script src="../../js/api.js?v=2"></script>
+<script src="../../js/auth.js"></script>
+<script src="../../js/reservations.js?v=2"></script>
+<script>
+    YeuCauXacThuc(['admin','Admin','thuthu','ThuThu']);
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if(user.name) document.getElementById('userNameDisplay').textContent = user.name;
+</script>
+</body>
+</html>

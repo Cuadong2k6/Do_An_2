@@ -1,0 +1,156 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo Cáo Thống Kê - Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/layout.css">
+    <link rel="stylesheet" href="../../css/components.css">
+</head>
+<body>
+
+<div class="app-wrapper">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fa-solid fa-book-open"></i> Thư Viện Admin</h2>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="dashboard.html"><i class="fa-solid fa-chart-line"></i> Tổng Quan</a></li>
+                <li><a href="books.html"><i class="fa-solid fa-book"></i> Quản Lý Sách</a></li>
+                <li><a href="readers.html"><i class="fa-solid fa-users"></i> Độc Giả</a></li>
+                <li><a href="loans.html"><i class="fa-solid fa-hand-holding-hand"></i> Mượn - Trả</a></li>
+                <li><a href="reservations.html"><i class="fa-solid fa-calendar-check"></i> Đặt Chỗ</a></li>
+                <li><a href="fines.html"><i class="fa-solid fa-money-bill-wave"></i> Tiền Phạt</a></li>
+                <li><a href="copies.html"><i class="fa-solid fa-copy"></i> Bản Sao Sách</a></li>
+                <li><a href="shelves.html"><i class="fa-solid fa-warehouse"></i> Kệ Sách</a></li>
+                <li><a href="reports.html" class="active"><i class="fa-solid fa-chart-bar"></i> Báo Cáo</a></li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer" style="padding: 15px;">
+            <button id="logoutBtn" class="btn btn-secondary btn-block"><i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng Xuất</button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="top-header">
+            <div class="header-search">
+                <i class="fa-solid fa-magnifying-glass text-muted"></i>
+                <input type="text" placeholder="Tìm kiếm nhanh...">
+            </div>
+            <div class="header-user">
+                <span style="font-weight: 500;" id="userNameDisplay">Admin User</span>
+                <div class="avatar">A</div>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <div class="content-container">
+            <div class="d-flex justify-between align-center" style="margin-bottom: 24px;">
+                <h1 style="color: var(--primary-color);">Báo Cáo Thống Kê</h1>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-secondary" onclick="exportReport('sachmuonnhieu')"><i class="fa-solid fa-file-excel"></i> Xuất Excel Sách Mượn Nhiều</button>
+                    <button class="btn btn-secondary" onclick="exportReport('tonkho')"><i class="fa-solid fa-file-excel"></i> Xuất Excel Tồn Kho</button>
+                    <button class="btn btn-secondary" onclick="exportReport('quahan')"><i class="fa-solid fa-file-excel"></i> Xuất Excel Quá Hạn</button>
+                </div>
+            </div>
+
+            <!-- Tab chọn báo cáo -->
+            <div class="card" style="margin-bottom: 16px;">
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button id="reportTabSachMuon" class="btn btn-primary" onclick="ChuyenTabBaoCao('sachmuonnhieu')"><i class="fa-solid fa-trophy"></i> Sách Mượn Nhiều Nhất</button>
+                    <button id="reportTabTonKho" class="btn btn-secondary" onclick="ChuyenTabBaoCao('tonkho')"><i class="fa-solid fa-boxes-stacked"></i> Tồn Kho Theo Thể Loại</button>
+                    <button id="reportTabQuaHan" class="btn btn-secondary" onclick="ChuyenTabBaoCao('quahan')"><i class="fa-solid fa-clock-rotate-left"></i> Sách Quá Hạn Chưa Trả</button>
+                </div>
+            </div>
+
+            <!-- Báo cáo 1: Sách mượn nhiều nhất -->
+            <div id="reportSachMuon" class="report-content">
+                <div class="card">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>STT</th>
+                                    <th>Tên Sách</th>
+                                    <th>Tác Giả</th>
+                                    <th>Thể Loại</th>
+                                    <th>Số Lượt Mượn</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reportSachMuonBody">
+                                <tr><td colspan="5" style="text-align:center">Đang tải dữ liệu...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Báo cáo 2: Tồn kho theo thể loại -->
+            <div id="reportTonKho" class="report-content" style="display: none;">
+                <div class="card">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Thể Loại</th>
+                                    <th>Số Đầu Sách</th>
+                                    <th>Tổng Bản Sao</th>
+                                    <th>Bản Sao Sẵn Giờ</th>
+                                    <th>Đang Mượn</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reportTonKhoBody">
+                                <tr><td colspan="5" style="text-align:center">Đang tải dữ liệu...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Báo cáo 3: Sách quá hạn -->
+            <div id="reportQuaHan" class="report-content" style="display: none;">
+                <div class="card">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Mã Phiếu</th>
+                                    <th>Độc Giả</th>
+                                    <th>Số Thẻ</th>
+                                    <th>Số Điện Thoại</th>
+                                    <th>Ngày Mượn</th>
+                                    <th>Hạn Trả</th>
+                                    <th>Số Ngày Trễ</th>
+                                    <th>Tiền Phạt</th>
+                                    <th>Trạng Thái Thu</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reportQuaHanBody">
+                                <tr><td colspan="9" style="text-align:center">Đang tải dữ liệu...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script src="../../js/api.js"></script>
+<script src="../../js/auth.js"></script>
+<script src="../../js/reports.js"></script>
+<script>
+    YeuCauXacThuc(['admin','Admin','thuthu','ThuThu']);
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if(user.name) document.getElementById('userNameDisplay').textContent = user.name;
+</script>
+</body>
+</html>

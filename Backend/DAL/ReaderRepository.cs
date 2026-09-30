@@ -1,6 +1,6 @@
+﻿using DAL.Helper;
 using Dapper;
-using DAL.Helper;
-using Model;
+using Model.Reader;
 using System.Data;
 
 namespace DAL

@@ -1,0 +1,101 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch Sử Mượn - Thư Viện</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/layout.css">
+    <link rel="stylesheet" href="../../css/components.css">
+</head>
+<body>
+
+<div class="app-wrapper">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fa-solid fa-book-open"></i> Xin chào Bạn đọc</h2>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="search.html"><i class="fa-solid fa-magnifying-glass"></i> Tra Cứu Sách</a></li>
+                <li><a href="history.html" class="active"><i class="fa-solid fa-clock-rotate-left"></i> Lịch Sử Mượn</a></li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer" style="padding: 15px;">
+            <button id="logoutBtn" class="btn btn-secondary btn-block"><i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng Xuất</button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="top-header">
+            <div></div> <!-- Empty for flex spacing -->
+            <div class="header-user">
+                <span style="font-weight: 500;" id="userNameDisplay">Reader User</span>
+                <div class="avatar" style="background-color: var(--secondary-color);">R</div>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <div class="content-container">
+            <h1 style="margin-bottom: 24px; color: var(--primary-color);">Lịch Sử Mượn Trả Của Tôi</h1>
+            
+            <!-- Tabs cho các trạng thái -->
+            <div class="card" style="margin-bottom: 16px;">
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button id="tabAll" class="btn btn-primary" onclick="ChuyenTabLichSu('all')"><i class="fa-solid fa-list"></i> Tất cả</button>
+                    <button id="tabBorrowing" class="btn btn-secondary" onclick="ChuyenTabLichSu('borrowing')"><i class="fa-solid fa-book"></i> Đang mượn</button>
+                    <button id="tabOverdue" class="btn btn-secondary" onclick="ChuyenTabLichSu('overdue')"><i class="fa-solid fa-triangle-exclamation"></i> Quá hạn</button>
+                    <button id="tabReturned" class="btn btn-secondary" onclick="ChuyenTabLichSu('returned')"><i class="fa-solid fa-check"></i> Đã trả</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Mã Phiếu</th>
+                                <th>Tên Sách</th>
+                                <th>Ngày Mượn</th>
+                                <th>Hạn Trả</th>
+                                <th>Ngày Trả</th>
+                                <th>Trạng Thái</th>
+                                <th>Tiền Phạt</th>
+                                <th>Thao Tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody">
+                            <tr><td colspan="8" style="text-align:center">Đang tải dữ liệu...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Phân trang -->
+                <div class="d-flex justify-between align-center mt-2 pt-2" style="border-top: 1px solid var(--border-color);">
+                    <span class="text-muted" id="historyPageInfo" style="font-size: 0.85rem;"></span>
+                    <div id="historyPagination" style="display: flex; gap: 5px;"></div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script src="../../js/api.js"></script>
+<script src="../../js/auth.js"></script>
+<script src="../../js/history.js"></script>
+<script>
+    // Kiểm tra quyền truy cập (cho reader và admin)
+    YeuCauXacThuc(['reader', 'admin']);
+    
+    // Hiển thị tên người dùng
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if(user.name) document.getElementById('userNameDisplay').textContent = user.name;
+</script>
+</body>
+</html>

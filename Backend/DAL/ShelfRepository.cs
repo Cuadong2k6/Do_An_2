@@ -1,6 +1,6 @@
+﻿using DAL.Helper;
 using Dapper;
-using DAL.Helper;
-using Model;
+using Model.Shelf;
 using System.Data;
 
 namespace DAL
@@ -48,6 +48,11 @@ namespace DAL
                 location_code = model.location_code,
                 mota          = model.mota
             });
+        }
+
+        public async Task xoake(int shelfId)
+        {
+            await _db.ExecuteAsync("sp_shelf_delete", new { shelf_id = shelfId });
         }
     }
 }

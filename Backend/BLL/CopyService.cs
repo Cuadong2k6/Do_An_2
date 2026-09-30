@@ -1,6 +1,20 @@
+﻿using DAL.Helper;
 using DAL;
+using Dapper;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Model;
+using Microsoft.IdentityModel.Tokens;
+using Model.Copy;
+using Model.Reader;
+using Model.Shared;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
+using System.Data;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text.Json;
+using System.Text;
 
 namespace BLL
 {
@@ -15,9 +29,9 @@ namespace BLL
             _logger   = logger;
         }
 
-        public async Task<ResponseModel> danhsachbansao(Guid? bookId, int? status, int page, int pageSize)
+        public async Task<ResponseModel> danhsachbansao(Guid? bookId, int? status, int? shelfId, int page, int pageSize)
         {
-            var (items, total) = await _copyRepo.danhsachbansao(bookId, status, page, pageSize);
+            var (items, total) = await _copyRepo.danhsachbansao(bookId, status, shelfId, page, pageSize);
             return ResponseModel.Ok(items, totalItems: total, page: page, pageSize: pageSize);
         }
 
@@ -63,6 +77,21 @@ namespace BLL
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Lỗi cập nhật bản sao {CopyId}", copyId);
+                return ResponseModel.Fail(ex.Message);
+            }
+        }
+
+        public async Task<ResponseModel> xoabansao(Guid copyId)
+        {
+            try
+            {
+                await _copyRepo.xoabansao(copyId);
+                _logger.LogInformation("Xoá bản sao {CopyId}", copyId);
+                return ResponseModel.Ok(null, "Xoá bản sao thành công.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi xoá bản sao {CopyId}", copyId);
                 return ResponseModel.Fail(ex.Message);
             }
         }

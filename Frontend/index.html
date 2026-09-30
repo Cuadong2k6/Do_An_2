@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập - Hệ thống Quản lý Thư viện</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    <style>
+        .login-card {
+            width: 100%;
+            max-width: 400px;
+            padding: 40px 30px;
+        }
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .login-header h1 {
+            color: var(--primary-color);
+            margin-bottom: 8px;
+            font-size: 1.5rem;
+        }
+        .login-header p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        .error-message {
+            display: none;
+            background-color: #fee2e2;
+            color: #991b1b;
+            padding: 10px;
+            border-radius: var(--border-radius-sm);
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+        .login-type-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-radius: var(--border-radius-sm);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+        .login-type-tab {
+            flex: 1;
+            padding: 10px;
+            background: var(--bg-secondary);
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .login-type-tab.active {
+            background: var(--primary-color);
+            color: white;
+        }
+        .login-type-tab:not(.active):hover {
+            background: var(--bg-tertiary);
+        }
+        .form-group.hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="full-screen-center">
+        <div class="card login-card">
+            <div class="login-header">
+                <h1>Thư Viện Thông Minh</h1>
+                <p>Đăng nhập để tiếp tục</p>
+            </div>
+            
+            <div class="login-type-tabs">
+                <button type="button" class="login-type-tab active" data-type="admin" onclick="switchLoginType('admin')">Admin / Thủ thư</button>
+                <button type="button" class="login-type-tab" data-type="reader" onclick="switchLoginType('reader')">Bạn đọc</button>
+            </div>
+
+            <div class="error-message" id="loginError"></div>
+
+            <form id="loginForm">
+                <!-- Admin login fields -->
+                <div class="form-group" id="adminFields">
+                    <label class="form-label" for="username">Tài khoản</label>
+                    <input type="text" id="username" class="form-control" placeholder="admin" autocomplete="username">
+                </div>
+
+                <!-- Reader login fields -->
+                <div class="form-group hidden" id="readerFields">
+                    <label class="form-label" for="email">Email</label>
+                    <input type="email" id="email" class="form-control" placeholder="reader@gmail.com" autocomplete="email">
+                </div>
+                
+                <div class="form-group mb-2">
+                    <label class="form-label" for="password">Mật khẩu</label>
+                    <input type="password" id="password" class="form-control" placeholder="••••••••" required autocomplete="current-password">
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-block" style="padding: 12px; margin-top: 20px; font-size: 1rem;">
+                    Đăng nhập
+                </button>
+            </form>
+            
+            <div class="text-center mt-2" style="font-size: 0.85rem; color: var(--text-muted); display: none;">
+                <p id="demoCredentialsAdmin">Admin: admin / 123456</p>
+                <p id="demoCredentialsReader" class="hidden">Bạn đọc: reader@gmail.com / 123456</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        // Initialize login type switching
+        function switchLoginType(type) {
+            document.querySelectorAll('.login-type-tab').forEach(btn => btn.classList.toggle('active', btn.dataset.type === type));
+            document.getElementById('adminFields').classList.toggle('hidden', type !== 'admin');
+            document.getElementById('readerFields').classList.toggle('hidden', type !== 'reader');
+            document.getElementById('demoCredentialsAdmin').classList.toggle('hidden', type !== 'admin');
+            document.getElementById('demoCredentialsReader').classList.toggle('hidden', type !== 'reader');
+            document.getElementById('loginError').style.display = 'none';
+            
+            // Clear inputs
+            document.getElementById('username').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('password').value = '';
+            
+            // Set required attribute
+            document.getElementById('username').required = type === 'admin';
+            document.getElementById('email').required = type === 'reader';
+            
+            // Update global login type for auth.js
+            window.currentLoginType = type;
+        }
+        
+        // Store current login type for auth.js
+        window.currentLoginType = 'admin';
+    </script>
+</body>
+</html>

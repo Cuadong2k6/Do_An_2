@@ -1,4 +1,4 @@
-﻿-- =============================================
+-- =============================================
 -- Script 02: Stored Procedures - Hệ Thống Quản Lý Thư Viện
 -- =============================================
 USE DoAn2;
@@ -269,6 +269,7 @@ GO
 CREATE OR ALTER PROCEDURE sp_copy_getlist
     @book_id    UNIQUEIDENTIFIER = NULL,
     @status     INT              = NULL,
+    @shelf_id   INT              = NULL,
     @page_index INT              = 1,
     @page_size  INT              = 10,
     @total      BIGINT           OUTPUT
@@ -280,14 +281,16 @@ BEGIN
     SELECT @total = COUNT(*)
     FROM copies c
     WHERE (@book_id IS NULL OR c.book_id = @book_id)
-      AND (@status  IS NULL OR c.status = @status);
+      AND (@status  IS NULL OR c.status = @status)
+      AND (@shelf_id IS NULL OR c.shelf_id = @shelf_id);
 
-    SELECT c.*, b.title AS book_title, b.isbn, s.location_code AS shelf_location
+    SELECT c.*, ISNULL(b.title, '') AS book_title, ISNULL(b.isbn, '') AS isbn, ISNULL(s.location_code, '') AS shelf_location
     FROM copies c
-    INNER JOIN books   b ON b.book_id  = c.book_id
+    LEFT  JOIN books   b ON b.book_id  = c.book_id
     LEFT  JOIN shelves s ON s.shelf_id = c.shelf_id
     WHERE (@book_id IS NULL OR c.book_id = @book_id)
       AND (@status  IS NULL OR c.status = @status)
+      AND (@shelf_id IS NULL OR c.shelf_id = @shelf_id)
     ORDER BY b.title, c.mabancao
     OFFSET @offset ROWS FETCH NEXT @page_size ROWS ONLY;
 END;
@@ -360,6 +363,40 @@ BEGIN
     SET shelf_id = ISNULL(@shelf_id, shelf_id),
         status   = @status
     WHERE copy_id = @copy_id;
+END;
+GO
+
+-- Xoá bản sao (chỉ khi chưa từng mượn)
+CREATE OR ALTER PROCEDURE sp_copy_delete
+    @copy_id UNIQUEIDENTIFIER
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF NOT EXISTS (SELECT 1 FROM copies WHERE copy_id = @copy_id)
+        THROW 50021, N'Bản sao không tồn tại.', 1;
+
+    IF EXISTS (SELECT 1 FROM loan_details WHERE copy_id = @copy_id)
+        THROW 50024, N'Không thể xoá: bản sao đã từng được mượn.', 1;
+
+    DELETE FROM copies WHERE copy_id = @copy_id;
+END;
+GO
+
+-- Xoá kệ sách (chỉ khi chưa chứa bản sao)
+CREATE OR ALTER PROCEDURE sp_shelf_delete
+    @shelf_id INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF NOT EXISTS (SELECT 1 FROM shelves WHERE shelf_id = @shelf_id)
+        THROW 50017, N'Kệ sách không tồn tại.', 1;
+
+    IF EXISTS (SELECT 1 FROM copies WHERE shelf_id = @shelf_id)
+        THROW 50020, N'Không thể xoá: kệ sách đang chứa bản sao.', 1;
+
+    DELETE FROM shelves WHERE shelf_id = @shelf_id;
 END;
 GO
 
@@ -523,6 +560,7 @@ GO
 CREATE OR ALTER PROCEDURE sp_loan_create
     @loan_id         UNIQUEIDENTIFIER,
     @reader_id       UNIQUEIDENTIFIER,
+    @loan_date       DATETIME,
     @due_date        DATETIME,
     @listjson_chitiet NVARCHAR(MAX)    -- JSON: [{"copy_id":"..."},{"copy_id":"..."}]
 AS
@@ -544,8 +582,8 @@ BEGIN
             THROW 50002, N'Có bản sao không tồn tại hoặc không sẵn sàng để mượn.', 1;
 
         -- Tạo phiếu mượn
-        INSERT INTO loans (loan_id, reader_id, due_date)
-        VALUES (@loan_id, @reader_id, @due_date);
+        INSERT INTO loans (loan_id, reader_id, loan_date, due_date)
+        VALUES (@loan_id, @reader_id, @loan_date, @due_date);
 
         -- Chèn chi tiết và cập nhật trạng thái bản sao
         INSERT INTO loan_details (loan_id, copy_id)
@@ -921,26 +959,26 @@ GO
 -- Đăng nhập Admin/Thủ thư
 CREATE OR ALTER PROCEDURE sp_user_login
     @taikhoan NVARCHAR(100),
-    @matkhau  NVARCHAR(255)
+    @matkhau  NVARCHAR(255) = NULL  -- Giữ tham số cũ để backward compat
 AS
 BEGIN
     SET NOCOUNT ON;
-    SELECT user_id, hoten, email, taikhoan, role, image_url
+    SELECT user_id, hoten, email, taikhoan, matkhau, role, image_url
     FROM users
-    WHERE taikhoan = @taikhoan AND matkhau = @matkhau;
+    WHERE taikhoan = @taikhoan;
 END;
 GO
 
 -- Đăng nhập bạn đọc
 CREATE OR ALTER PROCEDURE sp_reader_login
     @email   NVARCHAR(200),
-    @matkhau NVARCHAR(255)
+    @matkhau NVARCHAR(255) = NULL  -- Giữ tham số cũ để backward compat
 AS
 BEGIN
     SET NOCOUNT ON;
-    SELECT reader_id, hoten, email, so_the, trangthai, ngayhethan
+    SELECT reader_id, hoten, email, so_the, trangthai, ngayhethan, matkhau
     FROM readers
-    WHERE email = @email AND matkhau = @matkhau AND trangthai = 0;
+    WHERE email = @email;
 END;
 GO
 

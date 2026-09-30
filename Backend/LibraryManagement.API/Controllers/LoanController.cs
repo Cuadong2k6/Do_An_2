@@ -1,7 +1,7 @@
-using BLL;
+﻿using BLL;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Model;
+using Model.Shared;
 
 namespace LibraryManagement.API.Controllers
 {

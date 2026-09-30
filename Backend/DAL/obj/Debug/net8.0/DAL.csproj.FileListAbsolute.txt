@@ -1,0 +1,16 @@
+C:\Users\ThinkCrab\Documents\Nơi chứa file bài tập\C#\source\Do_An_2\Backend\DAL\bin\Debug\net8.0\DAL.deps.json
+C:\Users\ThinkCrab\Documents\Nơi chứa file bài tập\C#\source\Do_An_2\Backend\DAL\bin\Debug\net8.0\DAL.dll
+C:\Users\ThinkCrab\Documents\Nơi chứa file bài tập\C#\source\Do_An_2\Backend\DAL\bin\Debug\net8.0\DAL.pdb
+C:\Users\ThinkCrab\Documents\Nơi chứa file bài tập\C#\source\Do_An_2\Backend\DAL\bin\Debug\net8.0\Model.dll
+C:\Users\ThinkCrab\Documents\Nơi chứa file bài tập\C#\source\Do_An_2\Backend\DAL\bin\Debug\net8.0\Model.pdb
+C:\Users\ThinkCrab\Documents\Nơi chứa file bài tập\C#\source\Do_An_2\Backend\DAL\obj\Debug\net8.0\DAL.csproj.AssemblyReference.cache
+C:\Users\ThinkCrab\Documents\Nơi chứa file bài tập\C#\source\Do_An_2\Backend\DAL\obj\Debug\net8.0\DAL.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ThinkCrab\Documents\Nơi chứa file bài tập\C#\source\Do_An_2\Backend\DAL\obj\Debug\net8.0\DAL.AssemblyInfoInputs.cache
+C:\Users\ThinkCrab\Documents\Nơi chứa file bài tập\C#\source\Do_An_2\Backend\DAL\obj\Debug\net8.0\DAL.AssemblyInfo.cs
+C:\Users\ThinkCrab\Documents\Nơi chứa file bài tập\C#\source\Do_An_2\Backend\DAL\obj\Debug\net8.0\DAL.csproj.CoreCompileInputs.cache
+C:\Users\ThinkCrab\Documents\Nơi chứa file bài tập\C#\source\Do_An_2\Backend\DAL\obj\Debug\net8.0\DAL.sourcelink.json
+C:\Users\ThinkCrab\Documents\Nơi chứa file bài tập\C#\source\Do_An_2\Backend\DAL\obj\Debug\net8.0\DAL.csproj.Up2Date
+C:\Users\ThinkCrab\Documents\Nơi chứa file bài tập\C#\source\Do_An_2\Backend\DAL\obj\Debug\net8.0\DAL.dll
+C:\Users\ThinkCrab\Documents\Nơi chứa file bài tập\C#\source\Do_An_2\Backend\DAL\obj\Debug\net8.0\refint\DAL.dll
+C:\Users\ThinkCrab\Documents\Nơi chứa file bài tập\C#\source\Do_An_2\Backend\DAL\obj\Debug\net8.0\DAL.pdb
+C:\Users\ThinkCrab\Documents\Nơi chứa file bài tập\C#\source\Do_An_2\Backend\DAL\obj\Debug\net8.0\ref\DAL.dll

@@ -1,9 +1,18 @@
+﻿using DAL.Helper;
 using DAL;
+using Dapper;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Model;
+using Microsoft.IdentityModel.Tokens;
+using Model.Reader;
+using Model.Shared;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
+using System.Data;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text.Json;
 using System.Text;
 
 namespace BLL
@@ -184,9 +193,7 @@ namespace BLL
 
         private string hashmatkhau(string matkhau)
         {
-            using var md5 = System.Security.Cryptography.MD5.Create();
-            var bytes = md5.ComputeHash(Encoding.UTF8.GetBytes(matkhau));
-            return Convert.ToHexString(bytes).ToLower();
+            return BCrypt.Net.BCrypt.HashPassword(matkhau, workFactor: 12);
         }
     }
 }
