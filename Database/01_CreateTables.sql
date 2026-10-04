@@ -121,4 +121,42 @@ CREATE TABLE users (
 );
 GO
 
+-- 11. Nhật ký thay đổi (ghi tự động bằng trigger khi SỬA hoặc XÓA sách / bạn đọc)
+-- Mỗi dòng là 1 TRƯỜNG bị thay đổi, nên đọc nhật ký là biết ngay sửa nhầm chỗ nào.
+-- Cố ý KHÔNG ghi: thêm mới (không mất được gì), mật khẩu, mô tả dài.
+CREATE TABLE nhatky (
+    nhatky_id  BIGINT IDENTITY(1,1) PRIMARY KEY,
+    thoigian   DATETIME      NOT NULL DEFAULT GETDATE(),
+    nguoithuc  NVARCHAR(50)  NOT NULL DEFAULT N'ADMIN/ThuThu',
+    bang       NVARCHAR(30)  NOT NULL,   -- 'books' | 'readers'
+    doituong   NVARCHAR(300) NOT NULL,   -- books → ISBN, readers → số thẻ
+    hanhdong   NVARCHAR(20)  NOT NULL,   -- 'SUA' (sửa) | 'XOA' (xoá)
+    truong     NVARCHAR(100) NULL,       -- tên cột bị thay đổi (NULL nếu là xoá)
+    truoc      NVARCHAR(500) NULL,       -- giá trị cũ
+    sau        NVARCHAR(500) NULL        -- giá trị mới
+);
+GO
+
+CREATE INDEX ix_nhatky_thoigian ON nhatky(thoigian DESC);
+GO
+
+-- =============================================
+-- Index cho các cột KHÓA NGOẠI đang được truy vấn
+-- Nếu không có, các truy vấn lọc theo khóa ngoại sẽ phải quét toàn bộ bảng.
+-- Giải thích chi tiết từng index: xem 07_AddIndexes.sql
+-- =============================================
+
+-- sp_book_search đếm bản sao bằng correlated subquery cho TỪNG dòng sách;
+-- gộp book_id + status vì phần lớn truy vấn lọc cả hai.
+CREATE INDEX ix_copies_book_status ON copies(book_id, status);
+GO
+
+-- sp_loan_return và sp_reader_sodangmuon lấy chi tiết phiếu theo loan_id.
+CREATE INDEX ix_loan_details_loan ON loan_details(loan_id);
+GO
+
+-- sp_reader_sodangmuon chạy mỗi lần bạn đọc mượn sách.
+CREATE INDEX ix_loans_reader ON loans(reader_id);
+GO
+
 PRINT 'Tạo bảng thành công!';

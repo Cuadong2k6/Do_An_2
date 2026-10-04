@@ -20,9 +20,20 @@ builder.Host.UseSerilog();
 
 // ===================== JWT =====================
 var jwtSection  = builder.Configuration.GetSection("JwtSettings");
-var secretKey   = jwtSection["SecretKey"]!;
+var secretKey   = jwtSection["SecretKey"];
 var issuer      = jwtSection["Issuer"]!;
 var audience    = jwtSection["Audience"]!;
+
+// SecretKey không lưu trong appsettings.json (đã commit lên git).
+// Đặt bằng: dotnet user-secrets set "JwtSettings:SecretKey" "<chuỗi-bí-mat>"
+if (string.IsNullOrWhiteSpace(secretKey))
+{
+    Console.Error.WriteLine(
+        "Thiếu JwtSettings:SecretKey.\n" +
+        "Chạy lệnh sau 1 lần để tạo:\n" +
+        "  dotnet user-secrets set \"JwtSettings:SecretKey\" \"" + Guid.NewGuid() + "Lms_" + Guid.NewGuid() + "\"");
+    return;
+}
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(opt =>
@@ -58,6 +69,7 @@ builder.Services.AddTransient<ShelfRepository>();
 builder.Services.AddTransient<CopyRepository>();
 builder.Services.AddTransient<ReservationRepository>();
 builder.Services.AddTransient<ReportRepository>();
+builder.Services.AddTransient<NhatkyRepository>();
 
 // ===================== DI — BLL (Services) =====================
 builder.Services.AddTransient<BookService>();
@@ -69,6 +81,7 @@ builder.Services.AddTransient<ShelfService>();
 builder.Services.AddTransient<CopyService>();
 builder.Services.AddTransient<ReservationService>();
 builder.Services.AddTransient<ReportService>();
+builder.Services.AddTransient<NhatkyService>();
 
 // ===================== CONTROLLERS + SWAGGER =====================
 builder.Services.AddControllers();

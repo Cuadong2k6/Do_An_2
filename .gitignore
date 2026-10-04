@@ -1,0 +1,44 @@
+# ---------- .NET ----------
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+*.userprefs
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Rider / Visual Studio
+.idea/
+_ReSharper*/
+*.DotSettings.user
+
+# ---------- Logs ----------
+logs/
+*.log
+
+# ---------- Database ----------
+*.mdf
+*.ldf
+*.log.ldf
+
+# ---------- Node / Frontend ----------
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# ---------- OS ----------
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# ---------- Agent / Graphify ----------
+graphify-out/cache/
+graphify-out/converted/
+.venv/
+.opencode/

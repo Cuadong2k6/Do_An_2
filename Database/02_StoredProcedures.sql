@@ -552,6 +552,22 @@ BEGIN
 END;
 GO
 
+-- Đếm số cuốn bạn đọc đang mượn (chưa trả) — dùng để kiểm tra giới hạn mượn của thẻ.
+-- Tính cả phiếu quá hạn (không lọc ngày trả) vì sách vẫn còn nằm trên bạn đọc.
+CREATE OR ALTER PROCEDURE sp_reader_sodangmuon
+    @reader_id UNIQUEIDENTIFIER
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT COUNT(*) AS so_luong
+    FROM loan_details d
+    INNER JOIN loans l ON l.loan_id = d.loan_id
+    WHERE l.reader_id = @reader_id
+      AND l.return_date IS NULL;
+END;
+GO
+
 -- ==========================
 -- MƯỢN TRẢ (Loans)
 -- ==========================
@@ -594,6 +610,88 @@ BEGIN
         WHERE copy_id IN (
             SELECT copy_id FROM OPENJSON(@listjson_chitiet) WITH (copy_id UNIQUEIDENTIFIER '$.copy_id')
         );
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH;
+END;
+GO
+
+-- Tạo phiếu mượn từ GIỎ HÀNG của bạn đọc (tự mượn online).
+-- Khác sp_loan_create: nhận danh sách book_id, hệ thống tự gán bản sao đang rảnh (status = 0).
+-- Mỗi dòng trong JSON = 1 cuốn cần mượn; 2 dòng cùng book_id sẽ gán 2 bản sao khác nhau.
+-- All-or-nothing: nếu 1 cuốn không còn bản sao rảnh → hủy toàn bộ phiếu, KHÔNG tạo phiếu thiếu sách.
+CREATE OR ALTER PROCEDURE sp_loan_create_auto
+    @loan_id         UNIQUEIDENTIFIER,
+    @reader_id       UNIQUEIDENTIFIER,
+    @due_date        DATETIME,
+    @listjson_chitiet NVARCHAR(MAX)    -- JSON: [{"book_id":"..."},{"book_id":"..."}]
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Bảng tạm: bản sao được gán cho từng cuốn trong giỏ
+    DECLARE @bangchon TABLE (copy_id UNIQUEIDENTIFIER PRIMARY KEY, book_id UNIQUEIDENTIFIER);
+
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        -- Giỏ rỗng → từ chối, không tạo phiếu không có sách
+        IF (SELECT COUNT(*) FROM OPENJSON(@listjson_chitiet)) = 0
+            THROW 50004, N'Giỏ hàng không có sách nào để mượn.', 1;
+
+        -- Thẻ bạn đọc còn hiệu lực
+        IF NOT EXISTS (SELECT 1 FROM readers WHERE reader_id = @reader_id AND trangthai = 0 AND ngayhethan >= GETDATE())
+            THROW 50001, N'Thẻ bạn đọc không hợp lệ hoặc đã hết hạn.', 1;
+
+        -- Gán bản sao: với mỗi cuốn, lấy bản sao đang rảnh theo thứ tự stt
+        -- (stt = bản sao rảnh thứ mấy của cuốn đó → cho phép mượn nhiều bản sao của cùng 1 sách)
+        ;WITH yeucau AS (
+            SELECT j.book_id,
+                   ROW_NUMBER() OVER (PARTITION BY j.book_id ORDER BY (SELECT NULL)) AS stt
+            FROM OPENJSON(@listjson_chitiet) WITH (book_id UNIQUEIDENTIFIER '$.book_id') j
+        )
+        INSERT INTO @bangchon (copy_id, book_id)
+        SELECT bansao.copy_id, yeucau.book_id
+        FROM yeucau
+        CROSS APPLY (
+            SELECT c.copy_id
+            FROM copies c
+            WHERE c.book_id = yeucau.book_id AND c.status = 0
+            ORDER BY c.mabancao
+            OFFSET (yeucau.stt - 1) ROWS FETCH NEXT 1 ROWS ONLY
+        ) AS bansao;
+
+        -- Có cuốn nào không gán được bản sao → hủy toàn bộ phiếu, báo rõ tên sách
+        IF (SELECT COUNT(*) FROM @bangchon) < (SELECT COUNT(*) FROM OPENJSON(@listjson_chitiet))
+        BEGIN
+            DECLARE @thieu NVARCHAR(500) = (
+                SELECT STRING_AGG(bs.title, N', ')
+                FROM (SELECT DISTINCT j.book_id
+                      FROM OPENJSON(@listjson_chitiet) WITH (book_id UNIQUEIDENTIFIER '$.book_id') j) y
+                LEFT JOIN books bs ON bs.book_id = y.book_id
+                WHERE NOT EXISTS (SELECT 1 FROM @bangchon bc WHERE bc.book_id = y.book_id)
+            );
+            -- THROW chỉ nhận biến hoặc chuỗi literal → phải nối trước ra biến
+            DECLARE @msg NVARCHAR(500) =
+                N'Không còn bản sao rảnh cho: ' + ISNULL(@thieu, N'(không rõ)') + N'. Vui lòng bỏ khỏi giỏ và thử lại.';
+            THROW 50003, @msg, 1;
+        END;
+
+        -- Tạo phiếu mượn
+        INSERT INTO loans (loan_id, reader_id, loan_date, due_date)
+        VALUES (@loan_id, @reader_id, GETDATE(), @due_date);
+
+        -- Chèn chi tiết và chuyển bản sao sang trạng thái "đang mượn"
+        INSERT INTO loan_details (loan_id, copy_id)
+        SELECT @loan_id, copy_id FROM @bangchon;
+
+        UPDATE c
+        SET c.status = 1
+        FROM copies c
+        JOIN @bangchon bc ON bc.copy_id = c.copy_id;
 
         COMMIT TRANSACTION;
     END TRY
@@ -1036,6 +1134,41 @@ BEGIN
     WHERE l.return_date IS NULL
       AND l.due_date < GETDATE()
     ORDER BY songaytre DESC;
+END;
+GO
+
+-- ==========================================================
+-- NHẬT KÝ THAY ĐỔI (Nhatky)
+-- Bảng + trigger được tạo trong script 06_AddNhatky.sql.
+-- Ở đây chỉ có SP đọc nhật ký.
+-- ==========================================================
+
+-- Danh sách nhật ký (tìm theo đối tượng + lọc theo bảng / hành động, có phân trang)
+CREATE OR ALTER PROCEDURE sp_nhatky_getlist
+    @keyword    NVARCHAR(200) = NULL,
+    @bang       NVARCHAR(30)  = NULL,
+    @hanhdong   NVARCHAR(20)  = NULL,
+    @page_index INT           = 1,
+    @page_size  INT           = 10,
+    @total      BIGINT        OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    DECLARE @offset INT = (@page_index - 1) * @page_size;
+
+    SELECT @total = COUNT(*)
+    FROM nhatky
+    WHERE (@keyword IS NULL OR doituong LIKE '%' + @keyword + '%')
+      AND (@bang IS NULL OR bang = @bang)
+      AND (@hanhdong IS NULL OR hanhdong = @hanhdong);
+
+    SELECT nhatky_id, thoigian, nguoithuc, bang, doituong, hanhdong, truong, truoc, sau
+    FROM nhatky
+    WHERE (@keyword IS NULL OR doituong LIKE '%' + @keyword + '%')
+      AND (@bang IS NULL OR bang = @bang)
+      AND (@hanhdong IS NULL OR hanhdong = @hanhdong)
+    ORDER BY thoigian DESC, nhatky_id DESC
+    OFFSET @offset ROWS FETCH NEXT @page_size ROWS ONLY;
 END;
 GO
 
