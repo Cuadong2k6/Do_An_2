@@ -86,12 +86,12 @@
     </main>
 </div>
 
-<script src="../../js/api.js"></script>
-<script src="../../js/auth.js"></script>
-<script src="../../js/history.js"></script>
+<script src="../../js/api.js?v=3"></script>
+<script src="../../js/auth.js?v=4"></script>
+<script src="../../js/history.js?v=3"></script>
 <script>
     // Kiểm tra quyền truy cập (cho reader và admin)
-    YeuCauXacThuc(['reader', 'admin']);
+    YeuCauXacThuc(['reader', 'bandoc', 'admin']);
     
     // Hiển thị tên người dùng
     const user = JSON.parse(localStorage.getItem('user') || '{}');

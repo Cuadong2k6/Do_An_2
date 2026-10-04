@@ -153,10 +153,10 @@ async function TaiPhieuDangMuon() {
             return TaiPhieuDangMuon();
         }
         HienThiHangPhieu(res, tbody, true);
-        renderphantrang('loanPagination', 'loanPageInfo', _trangPhieu, res.totalItems ?? 0, HANG_PHIEU, 'DiTrangPhieu');
+        RenderPhanTrang('loanPagination', 'loanPageInfo', _trangPhieu, res.totalItems ?? 0, HANG_PHIEU, 'DiTrangPhieu');
     } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:red">Lỗi: ${err.message}</td></tr>`;
-        renderphantrang('loanPagination', 'loanPageInfo', _trangPhieu, 0, HANG_PHIEU, 'DiTrangPhieu');
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:red">Lỗi: ${EscapeHtml(err.message)}</td></tr>`;
+        RenderPhanTrang('loanPagination', 'loanPageInfo', _trangPhieu, 0, HANG_PHIEU, 'DiTrangPhieu');
     }
 }
 
@@ -172,10 +172,10 @@ async function TaiPhieuQuaHan() {
             return TaiPhieuQuaHan();
         }
         HienThiHangPhieu(res, tbody, true);
-        renderphantrang('loanPagination', 'loanPageInfo', _trangPhieu, res.totalItems ?? 0, HANG_PHIEU, 'DiTrangPhieu');
+        RenderPhanTrang('loanPagination', 'loanPageInfo', _trangPhieu, res.totalItems ?? 0, HANG_PHIEU, 'DiTrangPhieu');
     } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:red">Lỗi: ${err.message}</td></tr>`;
-        renderphantrang('loanPagination', 'loanPageInfo', _trangPhieu, 0, HANG_PHIEU, 'DiTrangPhieu');
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:red">Lỗi: ${EscapeHtml(err.message)}</td></tr>`;
+        RenderPhanTrang('loanPagination', 'loanPageInfo', _trangPhieu, 0, HANG_PHIEU, 'DiTrangPhieu');
     }
 }
 
@@ -191,10 +191,10 @@ async function TaiLichSuMuon(readerId) {
         }
         // Lịch sử: vẫn hiện nút với phiếu CHƯA trả (để trả/gia hạn từ đây)
         HienThiHangPhieu(res, tbody, true);
-        renderphantrang('loanPagination', 'loanPageInfo', _trangPhieu, res.totalItems ?? 0, HANG_PHIEU, 'DiTrangPhieu');
+        RenderPhanTrang('loanPagination', 'loanPageInfo', _trangPhieu, res.totalItems ?? 0, HANG_PHIEU, 'DiTrangPhieu');
     } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:red">Lỗi: ${err.message}</td></tr>`;
-        renderphantrang('loanPagination', 'loanPageInfo', _trangPhieu, 0, HANG_PHIEU, 'DiTrangPhieu');
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:red">Lỗi: ${EscapeHtml(err.message)}</td></tr>`;
+        RenderPhanTrang('loanPagination', 'loanPageInfo', _trangPhieu, 0, HANG_PHIEU, 'DiTrangPhieu');
     }
 }
 
@@ -218,19 +218,19 @@ function HienThiHangPhieu(res, tbody, showActions) {
             //   - Còn hạn     → thêm nút Gia hạn
             const nutGiaHan = (!daTra && !quaHan)
                 ? `<button class="btn btn-secondary" style="padding:5px 10px;font-size:0.8rem"
-                        onclick="GiaHanPhieu('${loan.loan_id}')">Gia Hạn</button>`
+                        onclick="GiaHanPhieu('${EscapeHtml(loan.loan_id)}')">Gia Hạn</button>`
                 : '';
             const actions = showActions && !daTra ? `
                 ${nutGiaHan}
                 <button class="btn btn-primary" style="padding:5px 10px;font-size:0.8rem"
-                    onclick="TraSach('${loan.loan_id}')">Trả Sách</button>
+                    onclick="TraSach('${EscapeHtml(loan.loan_id)}')">Trả Sách</button>
                 <button class="btn btn-warning" style="padding:5px 10px;font-size:0.8rem"
-                    onclick="KiemTraPhat('${loan.loan_id}')">Xem Phạt</button>` : '—';
+                    onclick="KiemTraPhat('${EscapeHtml(loan.loan_id)}')">Xem Phạt</button>` : '—';
 
             tbody.innerHTML += `
                 <tr>
-                    <td class="text-muted" style="font-size:0.8rem">${loan.loan_id?.slice(0,8) || '—'}...</td>
-                    <td>${loan.reader_hoten || loan.reader_id || '—'}</td>
+                    <td class="text-muted" style="font-size:0.8rem">${EscapeHtml(loan.loan_id?.slice(0,8)) || '—'}...</td>
+                    <td>${EscapeHtml(loan.reader_hoten) || EscapeHtml(loan.reader_id) || '—'}</td>
                     <td>${ngaymuon}</td>
                     <td>${hantravue}</td>
                     <td>${trangthai}</td>

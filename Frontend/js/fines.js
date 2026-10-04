@@ -97,7 +97,7 @@ async function TaiPhat() {
                 let actions = '—';
                 if (!item.is_paid) {
                     actions = `
-                        <button class="btn btn-danger" style="padding:5px 10px;font-size:0.8rem" onclick="ThuTienPhatBaoCao('${item.loan_id}')">
+                        <button class="btn btn-danger" style="padding:5px 10px;font-size:0.8rem" onclick="ThuTienPhatBaoCao('${EscapeHtml(item.loan_id)}')">
                             <i class="fa-solid fa-money-bill-wave"></i> Thu Tiền
                         </button>
                     `;
@@ -107,10 +107,10 @@ async function TaiPhat() {
                 
                 tbody.innerHTML += `
                     <tr>
-                        <td class="text-muted" style="font-size:0.8rem">${item.fine_id?.slice(0,8) || item.loan_id?.slice(0,8) || '—'}...</td>
-                        <td>${item.reader_hoten || '—'}<br><small class="text-muted">${item.reader_so_the || ''}</small></td>
-                        <td><span class="badge badge-secondary">${item.reader_so_the || '—'}</span></td>
-                        <td class="text-muted" style="font-size:0.8rem">${item.loan_id?.slice(0,8) || '—'}...</td>
+                        <td class="text-muted" style="font-size:0.8rem">${EscapeHtml(item.fine_id?.slice(0,8) || item.loan_id?.slice(0,8)) || '—'}...</td>
+                        <td>${EscapeHtml(item.reader_hoten) || '—'}<br><small class="text-muted">${EscapeHtml(item.reader_so_the)}</small></td>
+                        <td><span class="badge badge-secondary">${EscapeHtml(item.reader_so_the) || '—'}</span></td>
+                        <td class="text-muted" style="font-size:0.8rem">${EscapeHtml(item.loan_id?.slice(0,8)) || '—'}...</td>
                         <td style="text-align:center;color:var(--danger-color);font-weight:bold">${item.songaytre || 0} ngày</td>
                         <td style="text-align:right;font-weight:bold;color:var(--danger-color)">${(item.sotienphat || 0).toLocaleString('vi-VN')} VNĐ</td>
                         <td>${ngaytao}</td>
@@ -124,7 +124,7 @@ async function TaiPhat() {
         
         RenderPhanTrang('finePagination', 'finePageInfo', _trangFine, tong, HANG_FINE, 'DiTrangPhat');
     } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:red">Lỗi: ${err.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:red">Lỗi: ${EscapeHtml(err.message)}</td></tr>`;
         RenderPhanTrang('finePagination', 'finePageInfo', _trangFine, 0, HANG_FINE, 'DiTrangPhat');
     }
 }

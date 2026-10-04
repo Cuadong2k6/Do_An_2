@@ -1,4 +1,5 @@
 ﻿using BLL;
+using LibraryManagement.API.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Model.Reader;
@@ -33,6 +34,7 @@ namespace LibraryManagement.API.Controllers
         /// <summary>Chi tiết bạn đọc</summary>
         [HttpGet("{id}")]
         [Authorize]
+        [ChinhMinhHoacNhanVien("id")]
         public async Task<IActionResult> chitietchibandoc(Guid id)
         {
             var result = await _readerService.chitietchibandoc(id);
@@ -70,6 +72,7 @@ namespace LibraryManagement.API.Controllers
         /// <summary>Xuất thẻ bạn đọc file PDF</summary>
         [HttpGet("{id:guid}/card")]
         [Authorize]
+        [ChinhMinhHoacNhanVien("id")]
         public async Task<IActionResult> xuatthebandoc(Guid id)
         {
             var pdf = await _readerService.xuatthebandoc(id);

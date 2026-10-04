@@ -87,10 +87,10 @@ async function TaiDatCho() {
                     // Đang chờ: có thể xác nhận nhận hoặc huỷ
                     const hetHan = rv.expiry_date && new Date(rv.expiry_date) < new Date();
                     actions = `
-                        <button class="btn btn-primary" style="padding:5px 10px;font-size:0.8rem" onclick="XacNhanNhan('${rv.res_id}')">
+                        <button class="btn btn-primary" style="padding:5px 10px;font-size:0.8rem" onclick="XacNhanNhan('${EscapeHtml(rv.res_id)}')">
                             <i class="fa-solid fa-check"></i> Xác Nhận Nhận
                         </button>
-                        <button class="btn btn-danger" style="padding:5px 10px;font-size:0.8rem;margin-left:5px" onclick="HuyDatCho('${rv.res_id}')">
+                        <button class="btn btn-danger" style="padding:5px 10px;font-size:0.8rem;margin-left:5px" onclick="HuyDatCho('${EscapeHtml(rv.res_id)}')">
                             <i class="fa-solid fa-xmark"></i> Huỷ
                         </button>
                     `;
@@ -100,12 +100,12 @@ async function TaiDatCho() {
                 
                 tbody.innerHTML += `
                     <tr>
-                        <td class="text-muted" style="font-size:0.8rem">${rv.res_id?.slice(0,8) || '—'}...</td>
-                        <td>${rv.reader_hoten || '—'}<br><small class="text-muted">${rv.reader_so_the || ''}</small></td>
-                        <td>${rv.book_title || '—'}<br><small class="text-muted">ISBN: ${rv.isbn || ''}</small></td>
+                        <td class="text-muted" style="font-size:0.8rem">${EscapeHtml(rv.res_id?.slice(0,8)) || '—'}...</td>
+                        <td>${EscapeHtml(rv.reader_hoten) || '—'}<br><small class="text-muted">${EscapeHtml(rv.reader_so_the)}</small></td>
+                        <td>${EscapeHtml(rv.book_title) || '—'}<br><small class="text-muted">ISBN: ${EscapeHtml(rv.isbn)}</small></td>
                         <td>${ngaydat}</td>
                         <td>${han}</td>
-                        <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+                        <td><span class="badge ${badgeClass}">${EscapeHtml(badgeText)}</span></td>
                         <td>${actions}</td>
                     </tr>`;
             });
@@ -115,7 +115,7 @@ async function TaiDatCho() {
         
         RenderPhanTrang('resPagination', 'resPageInfo', _trangRes, tong, HANG_RES, 'DiTrangDatCho');
     } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:red">Lỗi: ${err.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:red">Lỗi: ${EscapeHtml(err.message)}</td></tr>`;
         RenderPhanTrang('resPagination', 'resPageInfo', _trangRes, 0, HANG_RES, 'DiTrangDatCho');
     }
 }

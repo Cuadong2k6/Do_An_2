@@ -2,7 +2,30 @@
 // Base API Configuration and Helper functions
 // ==========================================================================
 
-const API_BASE_URL = 'http://localhost:5095/api'; // Hoặc https://localhost:7126/api tùy thuộc Backend
+/**
+ * Escape chuỗi trước khi chèn vào innerHTML để chống XSS (stored/reflected).
+ * Dùng cho mọi giá trị lấy từ API hoặc từ người dùng nhập.
+ */
+function EscapeHtml(s) {
+    if (s === null || s === undefined) return '';
+    return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+// Tự động phát hiện origin để chọn đúng endpoint API:
+//   - Frontend được serve bởi chính API (localhost:5095 hoặc :7126) → dùng relative '/api'
+//   - Frontend chạy độc lập (Live Server, file://) → trỏ thẳng tới API https://localhost:7126/api
+const API_BASE_URL = (() => {
+    const host  = window.location.hostname;
+    const port  = window.location.port;
+    const laApi = (host === 'localhost' || host === '127.0.0.1')
+                  && (port === '7126' || port === '5095');
+    return laApi ? '/api' : 'https://localhost:7126/api';
+})();
 
 /**
  * Hàm gọi API chung (Wrapper cho fetch)

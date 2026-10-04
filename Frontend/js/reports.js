@@ -61,9 +61,9 @@ async function TaiSachMuonNhieu() {
                 tbody.innerHTML += `
                     <tr>
                         <td style="text-align:center">${index + 1}</td>
-                        <td style="font-weight:500">${item.title}</td>
-                        <td>${item.tacgia || '—'}</td>
-                        <td>${item.theloai || '—'}</td>
+                        <td style="font-weight:500">${EscapeHtml(item.title)}</td>
+                        <td>${EscapeHtml(item.tacgia) || '—'}</td>
+                        <td>${EscapeHtml(item.theloai) || '—'}</td>
                         <td style="text-align:center;font-weight:bold;color:var(--primary-color)">${item.sotluongmuon || 0}</td>
                     </tr>`;
             });
@@ -71,7 +71,7 @@ async function TaiSachMuonNhieu() {
             tbody.innerHTML = '<tr><td colspan="5" style="text-align:center">Không có dữ liệu</td></tr>';
         }
     } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:red">Lỗi: ${err.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:red">Lỗi: ${EscapeHtml(err.message)}</td></tr>`;
     }
 }
 
@@ -87,7 +87,7 @@ async function TaiTonKho() {
             res.data.forEach(item => {
                 tbody.innerHTML += `
                     <tr>
-                        <td style="font-weight:500">${item.theloai || 'Chưa phân loại'}</td>
+                        <td style="font-weight:500">${EscapeHtml(item.theloai) || 'Chưa phân loại'}</td>
                         <td style="text-align:center">${item.sodausach || 0}</td>
                         <td style="text-align:center">${item.tongbancao || 0}</td>
                         <td style="text-align:center;color:var(--secondary-color);font-weight:500">${item.bansangio || 0}</td>
@@ -98,7 +98,7 @@ async function TaiTonKho() {
             tbody.innerHTML = '<tr><td colspan="5" style="text-align:center">Không có dữ liệu</td></tr>';
         }
     } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:red">Lỗi: ${err.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:red">Lỗi: ${EscapeHtml(err.message)}</td></tr>`;
     }
 }
 
@@ -118,10 +118,10 @@ async function TaiQuaHan() {
                 
                 tbody.innerHTML += `
                     <tr>
-                        <td class="text-muted" style="font-size:0.8rem">${item.loan_id?.slice(0,8) || '—'}...</td>
-                        <td>${item.reader_hoten || '—'}</td>
-                        <td><span class="badge badge-secondary">${item.reader_so_the || '—'}</span></td>
-                        <td>${item.reader_sodienthoai || '—'}</td>
+                        <td class="text-muted" style="font-size:0.8rem">${EscapeHtml(item.loan_id?.slice(0,8)) || '—'}...</td>
+                        <td>${EscapeHtml(item.reader_hoten) || '—'}</td>
+                        <td><span class="badge badge-secondary">${EscapeHtml(item.reader_so_the) || '—'}</span></td>
+                        <td>${EscapeHtml(item.reader_sodienthoai) || '—'}</td>
                         <td>${item.loan_date ? new Date(item.loan_date).toLocaleDateString('vi-VN') : '—'}</td>
                         <td>${item.due_date ? new Date(item.due_date).toLocaleDateString('vi-VN') : '—'}</td>
                         <td style="text-align:center;color:var(--danger-color);font-weight:bold">${item.songaytre || 0} ngày</td>
@@ -133,7 +133,7 @@ async function TaiQuaHan() {
             tbody.innerHTML = '<tr><td colspan="9" style="text-align:center">Không có phiếu quá hạn</td></tr>';
         }
     } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:red">Lỗi: ${err.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:red">Lỗi: ${EscapeHtml(err.message)}</td></tr>`;
     }
 }
 

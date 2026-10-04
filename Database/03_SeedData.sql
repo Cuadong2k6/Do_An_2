@@ -1,6 +1,6 @@
 ﻿-- ============================================================
 -- Script 03: Dữ liệu mẫu (Seed Data) - Hệ Thống Quản Lý Thư Viện
--- Mật khẩu mặc định: 123456  →  MD5 = e10adc3949ba59abbe56e057f20f883e
+-- Mật khẩu mặc định: 123456  →  BCrypt (cost 12) = $2a$12$h4B10Fio3SBtaN8DF0SOduZ5hBBYUeuuqC4lGkOFCw5eMx4VTF4ZK
 -- ============================================================
 USE DoAn2;
 GO
@@ -17,15 +17,15 @@ BEGIN
         N'Quản Trị Viên',
         'admin@library.com',
         'admin',
-        'e10adc3949ba59abbe56e057f20f883e',  -- 123456
+        '$2a$12$h4B10Fio3SBtaN8DF0SOduZ5hBBYUeuuqC4lGkOFCw5eMx4VTF4ZK',  -- 123456
         'Admin'
     );
     PRINT N'✅ Thêm tài khoản Admin thành công.';
 END
 ELSE
 BEGIN
-    -- Đảm bảo mật khẩu đúng là hash của 123456
-    UPDATE users SET matkhau = 'e10adc3949ba59abbe56e057f20f883e', role = 'Admin'
+    -- Chỉ cập nhật role, KHÔNG đụng mật khẩu (tránh reset mật khẩu đã đổi)
+    UPDATE users SET role = 'Admin'
     WHERE taikhoan = 'admin';
     PRINT N'✅ Đã cập nhật tài khoản Admin.';
 END;
@@ -39,7 +39,7 @@ BEGIN
         N'Lê Thị Thư',
         'thuthu@library.com',
         'thuthu',
-        'e10adc3949ba59abbe56e057f20f883e',  -- 123456
+        '$2a$12$h4B10Fio3SBtaN8DF0SOduZ5hBBYUeuuqC4lGkOFCw5eMx4VTF4ZK',  -- 123456
         'ThuThu'
     );
     PRINT N'✅ Thêm tài khoản Thủ thư thành công.';
@@ -100,11 +100,11 @@ BEGIN
     INSERT INTO readers (reader_id, hoten, email, sodienthoai, diachi, so_the, matkhau, ngayhethan, trangthai, somughin)
     VALUES
         (@reader1, N'Nguyễn Văn An',  'bandoc1@gmail.com', '0901234567', N'Hà Nội',      'THE-001',
-         'e10adc3949ba59abbe56e057f20f883e',  -- 123456
+         '$2a$12$h4B10Fio3SBtaN8DF0SOduZ5hBBYUeuuqC4lGkOFCw5eMx4VTF4ZK',  -- 123456
          DATEADD(YEAR, 1, GETDATE()), 0, 3),
 
         (@reader2, N'Trần Thị Bình',  'bandoc2@gmail.com', '0912345678', N'TP.HCM',      'THE-002',
-         'e10adc3949ba59abbe56e057f20f883e',  -- 123456
+         '$2a$12$h4B10Fio3SBtaN8DF0SOduZ5hBBYUeuuqC4lGkOFCw5eMx4VTF4ZK',  -- 123456
          DATEADD(YEAR, 1, GETDATE()), 0, 3);
     PRINT N'✅ Thêm 2 bạn đọc mẫu thành công.';
 END

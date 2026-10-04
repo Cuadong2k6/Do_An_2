@@ -37,6 +37,12 @@ namespace DAL
             return await _db.QueryFirstOrDefaultAsync<ReaderModel>("sp_reader_getbyid", new { reader_id = readerId });
         }
 
+        /// <summary>Số cuốn bạn đọc đang mượn (chưa trả, tính cả phiếu quá hạn)</summary>
+        public async Task<int> sodangmuon(Guid readerId)
+        {
+            return await _db.ExecuteScalarAsync<int>("sp_reader_sodangmuon", new { reader_id = readerId });
+        }
+
         public async Task dangkythebandoc(ReaderModel model)
         {
             await _db.ExecuteAsync("sp_reader_create", new

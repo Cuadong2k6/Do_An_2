@@ -26,6 +26,21 @@ namespace DAL
             });
         }
 
+        /// <summary>
+        /// Tạo phiếu mượn từ giỏ hàng bạn đọc: nhận danh sách book_id,
+        /// SP tự gán bản sao đang rảnh cho từng cuốn.
+        /// </summary>
+        public async Task taophieumuongio(LoanModel model)
+        {
+            await _db.ExecuteAsync("sp_loan_create_auto", new
+            {
+                loan_id          = model.loan_id,
+                reader_id        = model.reader_id,
+                due_date         = model.due_date,
+                listjson_chitiet = model.listjson_chitiet
+            });
+        }
+
         public async Task trasach(Guid loanId)
         {
             await _db.ExecuteAsync("sp_loan_return", new

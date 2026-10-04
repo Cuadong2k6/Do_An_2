@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Lý Đặt Chỗ - Admin</title>
+    <title>Nhật Ký Thay Đổi - Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../../css/style.css">
@@ -26,13 +26,23 @@
         </div>
     </aside>
 
-    <!-- Main Content -->
     <main class="main-content">
-        <!-- Header -->
         <header class="top-header">
             <div class="header-search">
                 <i class="fa-solid fa-magnifying-glass text-muted"></i>
-                <input type="text" id="resSearchInput" placeholder="Tìm: tên Độc Giả, số thẻ, tên sách..." oninput="TimkiemDatCho()">
+                <input type="text" id="nhatkyKeyword" placeholder="Tìm theo ISBN hoặc số thẻ..." oninput="TimkiemNhatky()">
+                <select id="filterNhatkyBang" onchange="TimkiemNhatky()" title="Lọc theo loại dữ liệu"
+                    style="border:none;background:transparent;color:#555;font-size:0.9rem;outline:none;max-width:120px">
+                    <option value="">Mọi loại</option>
+                    <option value="books">Sách</option>
+                    <option value="readers">Độc Giả</option>
+                </select>
+                <select id="filterNhatkyHanhDong" onchange="TimkiemNhatky()" title="Lọc theo hành động"
+                    style="border:none;background:transparent;color:#555;font-size:0.9rem;outline:none;max-width:120px">
+                    <option value="">Mọi thao tác</option>
+                    <option value="SUA">Sửa</option>
+                    <option value="XOA">Xoá</option>
+                </select>
             </div>
             <div class="header-user">
                 <span style="font-weight: 500;" id="userNameDisplay">Admin User</span>
@@ -40,45 +50,40 @@
             </div>
         </header>
 
-        <!-- Page Content -->
         <div class="content-container table-page">
             <div class="d-flex justify-between align-center" style="margin-bottom: 8px;">
-                <h1 style="color: var(--primary-color);">Quản Lý Đặt Chỗ Sách</h1>
+                <h1 style="color: var(--primary-color);">Nhật Ký Thay Đổi</h1>
             </div>
 
-            <!-- Tab chuyển đổi trạng thái -->
-            <div style="display:flex;gap:8px;margin-bottom:8px;">
-                <button id="resTabWaiting" class="btn btn-primary" onclick="ChuyenTabDatCho(0)">Đang chờ (0)</button>
-                <button id="resTabReceived" class="btn btn-secondary" onclick="ChuyenTabDatCho(1)">Đã nhận (1)</button>
-                <button id="resTabCancelled" class="btn btn-secondary" onclick="ChuyenTabDatCho(2)">Đã huỷ (2)</button>
-                <button id="resTabExpired" class="btn btn-secondary" onclick="ChuyenTabDatCho(3)">Hết hạn (3)</button>
-                <button id="resTabAll" class="btn btn-secondary" onclick="ChuyenTabDatCho(null)">Tất cả</button>
-            </div>
+            <p class="text-muted" style="font-size:0.85rem;margin-bottom:12px;">
+                Ghi tự động mỗi khi nhân viên <strong>Sửa</strong> hoặc <strong>Xoá</strong> sách / bạn đọc.
+                Trang này chỉ để xem lại — muốn sửa lại thì lấy giá trị ở cột <em>cũ</em> rồi nhập tay.
+                Mượn / trả sách không ghi ở đây vì lịch sử mượn đã có sẵn ở tab <em>Lịch sử</em> trang Mượn - Trả.
+            </p>
 
             <div class="card">
                 <div class="table-responsive">
                     <table class="table">
                         <thead>
                             <tr>
-                                <th>Mã Đặt Chỗ</th>
-                                <th>Độc Giả</th>
-                                <th>Sách</th>
-                                <th>Ngày Đặt</th>
-                                <th>Hạn Nhận</th>
-                                <th>Trạng Thái</th>
+                                <th>Thời Gian</th>
+                                <th>Loại</th>
+                                <th>Đối Tượng</th>
                                 <th>Thao Tác</th>
+                                <th>Trường</th>
+                                <th>Thay Đổi</th>
                             </tr>
                         </thead>
-                        <tbody id="resTableBody">
-                            <tr><td colspan="7" style="text-align:center">Đang tải dữ liệu...</td></tr>
+                        <tbody id="nhatkyTableBody">
+                            <tr><td colspan="6" style="text-align:center">Đang tải...</td></tr>
                         </tbody>
                     </table>
                 </div>
 
-                <!-- Phân trang -->
+                <!-- Phân trang (20 dòng/trang) -->
                 <div class="d-flex justify-between align-center mt-2 pt-2" style="border-top: 1px solid var(--border-color);">
-                    <span class="text-muted" id="resPageInfo" style="font-size: 0.85rem;"></span>
-                    <div id="resPagination" style="display: flex; gap: 5px;"></div>
+                    <span class="text-muted" id="nhatkyPageInfo" style="font-size: 0.85rem;"></span>
+                    <div id="nhatkyPagination" style="display: flex; gap: 5px;"></div>
                 </div>
             </div>
         </div>
@@ -88,7 +93,7 @@
 <script src="../../js/api.js?v=3"></script>
 <script src="../../js/auth.js?v=3"></script>
 <script src="../../js/sidebar.js?v=1"></script>
-<script src="../../js/reservations.js?v=3"></script>
+<script src="../../js/nhatky.js?v=1"></script>
 <script>
     YeuCauXacThuc(['admin','Admin','thuthu','ThuThu']);
     const user = JSON.parse(localStorage.getItem('user') || '{}');

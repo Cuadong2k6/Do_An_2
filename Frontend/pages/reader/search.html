@@ -33,7 +33,12 @@
     <main class="main-content">
         <!-- Header -->
         <header class="top-header">
-            <div></div> <!-- Empty for flex spacing -->
+            <div>
+                <button id="btnGioHang" class="btn btn-primary" style="display:none;" onclick="MoModalGioHang()">
+                    <i class="fa-solid fa-cart-shopping"></i> Giỏ Mượn
+                    <span class="badge badge-danger" id="gioHangCount">0</span>
+                </button>
+            </div>
             <div class="header-user">
                 <span style="font-weight: 500;" id="userNameDisplay">Reader User</span>
                 <div class="avatar" style="background-color: var(--secondary-color);">R</div>
@@ -69,12 +74,38 @@
     </main>
 </div>
 
-<script src="../../js/api.js"></script>
-<script src="../../js/auth.js"></script>
-<script src="../../js/search.js"></script>
+<!-- Modal Giỏ Mượn -->
+<div id="gioHangModal" style="display:none;position:fixed;z-index:1000;inset:0;background:rgba(0,0,0,0.5);overflow-y:auto;padding:20px 10px;">
+    <div class="card" style="max-width:640px;margin:0 auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <h2 style="margin:0">Giỏ Mượn</h2>
+            <button type="button" class="btn btn-secondary" onclick="DongModalGioHang()">Đóng</button>
+        </div>
+
+        <div id="gioHangDanhSach"></div>
+
+        <div class="form-group" style="margin-top:16px;">
+            <label class="form-label" for="gioHangNgayTra">Ngày trả sách</label>
+            <input type="date" id="gioHangNgayTra" class="form-control">
+            <p class="text-muted" style="font-size:0.8rem;margin-top:4px;">
+                Mặc định trả sau <span id="gioHangSoNgayMacDinh">14</span> ngày kể từ hôm nay.
+            </p>
+        </div>
+
+        <div id="gioHangThongBao" style="display:none;padding:10px;border-radius:6px;margin-bottom:12px;font-size:0.85rem;"></div>
+
+        <button type="button" class="btn btn-primary btn-block" id="btnThanhToanGio" onclick="ThanhToanGioHang()">
+            Mượn sách trong giỏ
+        </button>
+    </div>
+</div>
+
+<script src="../../js/api.js?v=3"></script>
+<script src="../../js/auth.js?v=4"></script>
+<script src="../../js/search.js?v=5"></script>
 <script>
     // Kiểm tra quyền truy cập (cho reader và admin)
-    YeuCauXacThuc(['reader', 'admin']);
+    YeuCauXacThuc(['reader', 'bandoc', 'admin']);
     
     // Hiển thị tên người dùng
     const user = JSON.parse(localStorage.getItem('user') || '{}');

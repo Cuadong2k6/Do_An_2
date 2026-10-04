@@ -1,6 +1,5 @@
 ﻿using DAL.Helper;
 using DAL;
-using Dapper;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
@@ -9,56 +8,70 @@ using Model.Shared;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
-using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 
 namespace BLL
 {
     public class AuthService
     {
-        private readonly IDatabaseHelper _db;
-        private readonly IConfiguration  _config;
+        private readonly IDatabaseHelper        _db;
+        private readonly IConfiguration         _config;
+        private readonly ILogger<AuthService>  _logger;
 
-        public AuthService(IDatabaseHelper db, IConfiguration config)
+        public AuthService(IDatabaseHelper db, IConfiguration config, ILogger<AuthService> logger)
         {
             _db     = db;
             _config = config;
+            _logger = logger;
         }
 
         /// <summary>
-        /// Đăng nhập Admin / Thủ thư
+        /// Đăng nhập thống nhất cho mọi loại tài khoản.
+        /// Tra bảng users (Admin / Thủ thư) trước; không có thì tra bảng readers (Bạn đọc) theo email.
+        /// Cả 2 loại đều trả về cùng một cấu trúc: { token, user_id, hoten, role }.
         /// </summary>
-        public async Task<ResponseModel> dangnhapquantri(string taikhoan, string matkhau)
+        public async Task<ResponseModel> dangnhap(string tendangnhap, string matkhau)
         {
-            var user = await _db.QueryFirstOrDefaultAsync<UserModel>("sp_user_login", new { taikhoan });
+            if (string.IsNullOrWhiteSpace(tendangnhap) || string.IsNullOrWhiteSpace(matkhau))
+                return ResponseModel.Fail("Sai tài khoản hoặc mật khẩu.");
 
-            if (user == null) return ResponseModel.Fail("Sai tài khoản hoặc mật khẩu.");
-            if (!kiemtramatkhau(matkhau, user.matkhau)) return ResponseModel.Fail("Sai tài khoản hoặc mật khẩu.");
+            // 1. Nhân viên: Admin / Thủ thư — khóa đăng nhập là tên tài khoản
+            var user = await _db.QueryFirstOrDefaultAsync<UserModel>("sp_user_login", new { taikhoan = tendangnhap });
 
-            user.token = taojwttoken(user.user_id.ToString(), user.hoten, user.role);
-            return ResponseModel.Ok(user, "Đăng nhập thành công.");
-        }
+            if (user != null)
+            {
+                if (!kiemtramatkhau(matkhau, user.matkhau))
+                    return ResponseModel.Fail("Sai tài khoản hoặc mật khẩu.");
 
-        /// <summary>
-        /// Đăng nhập Bạn đọc
-        /// </summary>
-        public async Task<ResponseModel> dangnhapbandoc(string email, string matkhau)
-        {
-            using var conn = _db.GetConnection();
-            var reader = await conn.QueryFirstOrDefaultAsync<ReaderModel>("sp_reader_login",
-                new { email = email },
-                commandType: CommandType.StoredProcedure);
+                return ResponseModel.Ok(new
+                {
+                    token   = taojwttoken(user.user_id.ToString(), user.hoten, user.role),
+                    user_id = user.user_id,
+                    hoten   = user.hoten,
+                    role    = user.role
+                }, "Đăng nhập thành công.");
+            }
 
-            if (reader == null) return ResponseModel.Fail("Sai email hoặc mật khẩu.");
-            if (reader.trangthai != 0) return ResponseModel.Fail("Tài khoản đã bị khoá hoặc hết hạn.");
-            if (!kiemtramatkhau(matkhau, reader.matkhau)) return ResponseModel.Fail("Sai email hoặc mật khẩu.");
+            // 2. Bạn đọc — khóa đăng nhập là email
+            var reader = await _db.QueryFirstOrDefaultAsync<ReaderModel>("sp_reader_login", new { email = tendangnhap });
 
-            var token = taojwttoken(reader.reader_id.ToString(), reader.hoten, "BanDoc");
-            return ResponseModel.Ok(new { reader, token }, "Đăng nhập thành công.");
+            if (reader == null || !kiemtramatkhau(matkhau, reader.matkhau))
+                return ResponseModel.Fail("Sai tài khoản hoặc mật khẩu.");
+
+            // Chỉ báo "bị khoá / hết hạn" SAU khi mật khẩu đúng, tránh lộ trạng thái tài khoản cho người dò
+            if (reader.trangthai != 0)
+                return ResponseModel.Fail("Tài khoản đã bị khoá hoặc hết hạn.");
+
+            return ResponseModel.Ok(new
+            {
+                token   = taojwttoken(reader.reader_id.ToString(), reader.hoten, "BanDoc"),
+                user_id = reader.reader_id,
+                hoten   = reader.hoten,
+                role    = "BanDoc"
+            }, "Đăng nhập thành công.");
         }
 
         private string taojwttoken(string userId, string hoten, string role)
@@ -95,24 +108,16 @@ namespace BLL
 
         private bool kiemtramatkhau(string matkhau, string matkhauHash)
         {
-            // BCrypt hashes start with $2a$, $2b$, $2y$
+            // Định dạng lưu trữ duy nhất là BCrypt ($2a$ / $2b$ / $2y$)
             if (matkhauHash.StartsWith("$2"))
             {
                 return BCrypt.Net.BCrypt.Verify(matkhau, matkhauHash);
             }
-            
-            // Legacy MD5 hash (32 hex chars)
-            if (matkhauHash.Length == 32 && System.Text.RegularExpressions.Regex.IsMatch(matkhauHash, @"^[a-f0-9]{32}$", System.Text.RegularExpressions.RegexOptions.IgnoreCase))
-            {
-                // Verify with MD5
-                using var md5 = System.Security.Cryptography.MD5.Create();
-                var bytes = md5.ComputeHash(Encoding.UTF8.GetBytes(matkhau));
-                var md5Hash = Convert.ToHexString(bytes).ToLower();
-                return md5Hash == matkhauHash;
-            }
-            
-            // Plaintext fallback (should not happen in production)
-            return matkhau == matkhauHash;
+
+            // Định dạng lưu trữ không hợp lệ (MD5 cũ, plaintext, ...) → từ chối đăng nhập.
+            // Tuyệt đối KHÔNG so sánh plaintext.
+            _logger.LogWarning("Tài khoản có định dạng mật khẩu không hợp lệ ({DoDaiKyTu} ký tự). Từ chối đăng nhập.", matkhauHash.Length);
+            return false;
         }
     }
 }

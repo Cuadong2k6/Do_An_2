@@ -3,54 +3,44 @@
     
     // Nếu ở trang login
     if (loginForm) {
-        // Kiểm tra xem đã đăng nhập chưa
+        // Đã đăng nhập rồi → chuyển thẳng sang trang theo vai trò
+        // (nếu không, bạn đọc sẽ bị đá vòng vô tới dashboard rồi quay lại login → lặp)
         if (localStorage.getItem('token')) {
-            window.location.href = '/pages/admin/dashboard.html';
+            const role = (JSON.parse(localStorage.getItem('user') || '{}').role || '').toLowerCase();
+            const laBanDoc = role === 'bandoc' || role === 'reader';
+            window.location.href = window.location.origin
+                + (laBanDoc ? '/pages/reader/search.html' : '/pages/admin/dashboard.html');
         }
 
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            const loginType = window.currentLoginType || 'admin';
-            const password = document.getElementById('password').value;
-            const btnSubmit = loginForm.querySelector('button[type="submit"]');
-            const errorDiv = document.getElementById('loginError');
-            
+
+            const tendangnhap = document.getElementById('tendangnhap').value.trim();
+            const password    = document.getElementById('password').value;
+            const btnSubmit   = loginForm.querySelector('button[type="submit"]');
+            const errorDiv    = document.getElementById('loginError');
+
             // Trạng thái loading
             const originalText = btnSubmit.innerHTML;
             btnSubmit.innerHTML = 'Đang đăng nhập...';
             btnSubmit.disabled = true;
-            
+
             try {
-                let res;
-                if (loginType === 'admin') {
-                    const username = document.getElementById('username').value;
-                    // Backend nhận { taikhoan, matkhau } — Response: { success, data: { token, hoten, role, ... } }
-                    res = await window.api.post('/auth/login-admin', { taikhoan: username, matkhau: password });
-                } else {
-                    const email = document.getElementById('email').value;
-                    // Backend nhận { email, matkhau } — Response: { success, data: { reader, token, ... } }
-                    res = await window.api.post('/auth/login-reader', { email: email, matkhau: password });
-                }
-                
+                // Backend tự tra users (Admin / Thủ thư) trước, không có thì tra readers (Bạn đọc)
+                const res = await window.api.post('/auth/login', { tendangnhap: tendangnhap, matkhau: password });
+
                 if (res.success && res.data && res.data.token) {
                     localStorage.setItem('token', res.data.token);
-                    let userInfo;
-                    if (loginType === 'admin') {
-                        userInfo = {
-                            role: res.data.role,
-                            name: res.data.hoten,
-                            id: res.data.user_id
-                        };
-                    } else {
-                        userInfo = {
-                            role: 'reader',
-                            name: res.data.reader.hoten,
-                            id: res.data.reader.reader_id
-                        };
-                    }
-                    localStorage.setItem('user', JSON.stringify(userInfo));
-                    window.location.href = loginType === 'admin' ? 'pages/admin/dashboard.html' : '../pages/reader/search.html';
+                    localStorage.setItem('user', JSON.stringify({
+                        role: res.data.role,
+                        name: res.data.hoten,
+                        id: res.data.user_id
+                    }));
+
+                    // Bạn đọc → trang tìm kiếm; nhân viên → dashboard
+                    const laBanDoc = (res.data.role || '').toLowerCase() === 'bandoc';
+                    window.location.href = window.location.origin
+                        + (laBanDoc ? '/pages/reader/search.html' : '/pages/admin/dashboard.html');
                 } else {
                     throw new Error(res.message || 'Đăng nhập thất bại!');
                 }
@@ -71,7 +61,7 @@
             e.preventDefault();
             localStorage.removeItem('token');
             localStorage.removeItem('user');
-            window.location.href = '../../index.html'; // Về trang chủ từ pages/admin/...
+            window.location.href = window.location.origin + '/index.html'; // Về trang chủ
         });
     }
 });
@@ -82,7 +72,7 @@ function YeuCauXacThuc(allowedRoles = []) {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
 
     if (!token) {
-        window.location.href = '../../index.html';
+        window.location.href = window.location.origin + '/index.html';
         return;
     }
 
@@ -91,7 +81,7 @@ function YeuCauXacThuc(allowedRoles = []) {
         const allowed  = allowedRoles.map(r => r.toLowerCase());
         if (!allowed.includes(userRole)) {
             alert("Bạn không có quyền truy cập trang này!");
-            window.location.href = '../../index.html';
+            window.location.href = window.location.origin + '/index.html';
         }
     }
 }

@@ -93,7 +93,7 @@ async function TaiLichSu() {
         
         RenderPhanTrang('historyPagination', 'historyPageInfo', _trangHistory, tong, HANG_HISTORY, 'DiTrangLichSu');
     } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:red">Lỗi: ${err.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:red">Lỗi: ${EscapeHtml(err.message)}</td></tr>`;
         RenderPhanTrang('historyPagination', 'historyPageInfo', _trangHistory, 0, HANG_HISTORY, 'DiTrangLichSu');
     }
 }
@@ -124,7 +124,7 @@ function HienThiHangLichSu(data, tbody) {
             if (quaHan || (loan.fine_amount && loan.fine_amount > 0)) {
                 tienPhatHtml = `<span style="color: var(--danger-color); font-weight: 500;">${(loan.fine_amount || 0).toLocaleString('vi-VN')} VNĐ</span>`;
                 if (!loan.is_paid) {
-                    phatAction = `<button class="btn btn-danger" style="padding:5px 10px;font-size:0.8rem" onclick="KiemTraPhatLichSu('${loan.loan_id}')">Xem/Thu Phạt</button>`;
+                    phatAction = `<button class="btn btn-danger" style="padding:5px 10px;font-size:0.8rem" onclick="KiemTraPhatLichSu('${EscapeHtml(loan.loan_id)}')">Xem/Thu Phạt</button>`;
                 } else {
                     phatAction = `<span class="badge badge-success">Đã thu</span>`;
                 }
@@ -132,19 +132,19 @@ function HienThiHangLichSu(data, tbody) {
             
             // Nút thao tác
             const nutTraSach = (!daTra && !quaHan) 
-                ? `<button class="btn btn-primary" style="padding:5px 10px;font-size:0.8rem" onclick="traSachLichSu('${loan.loan_id}')">Trả Sách</button>`
+                ? `<button class="btn btn-primary" style="padding:5px 10px;font-size:0.8rem" onclick="traSachLichSu('${EscapeHtml(loan.loan_id)}')">Trả Sách</button>`
                 : '';
             
             const nutGiaHan = (!daTra && !quaHan)
-                ? `<button class="btn btn-secondary" style="padding:5px 10px;font-size:0.8rem" onclick="GiaHanLichSu('${loan.loan_id}')">Gia Hạn</button>`
+                ? `<button class="btn btn-secondary" style="padding:5px 10px;font-size:0.8rem" onclick="GiaHanLichSu('${EscapeHtml(loan.loan_id)}')">Gia Hạn</button>`
                 : '';
             
             const actions = `${nutTraSach} ${nutGiaHan} ${phatAction}` || '—';
             
             tbody.innerHTML += `
                 <tr>
-                    <td class="text-muted" style="font-size:0.8rem">${loan.loan_id?.slice(0,8) || '—'}...</td>
-                    <td>${tenSach}</td>
+                    <td class="text-muted" style="font-size:0.8rem">${EscapeHtml(loan.loan_id?.slice(0,8)) || '—'}...</td>
+                    <td>${EscapeHtml(tenSach)}</td>
                     <td>${ngaymuon}</td>
                     <td>${hantravue}</td>
                     <td>${ngaytra}</td>

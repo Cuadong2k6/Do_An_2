@@ -1,4 +1,5 @@
 ﻿using BLL;
+using LibraryManagement.API.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Model.Reservation;
@@ -19,7 +20,7 @@ namespace LibraryManagement.API.Controllers
 
         /// <summary>Đặt chỗ sách</summary>
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "Admin,ThuThu")]
         public async Task<IActionResult> taodatcho([FromBody] ReservationModel model)
         {
             var result = await _resService.taodatcho(model);
@@ -41,6 +42,7 @@ namespace LibraryManagement.API.Controllers
         /// <summary>Lịch sử đặt chỗ của bạn đọc</summary>
         [HttpGet("by-reader/{readerId:guid}")]
         [Authorize]
+        [ChinhMinhHoacNhanVien("readerId")]
         public async Task<IActionResult> danhsachdatchocuabandoc(
             Guid readerId,
             [FromQuery] int page     = 1,

@@ -140,19 +140,19 @@ async function TaiBanSao() {
                 
                 // Chỉ Admin mới thấy nút Xoá
                 const deleteBtn = isAdminRole
-                    ? `<button class="btn btn-danger" style="padding:5px 10px;font-size:0.8rem;margin-left:5px" onclick="XoaBanSao('${c.copy_id}', \`${c.mabancao}\`)">Xóa</button>`
+                    ? `<button class="btn btn-danger" style="padding:5px 10px;font-size:0.8rem;margin-left:5px" onclick="XoaBanSao('${EscapeHtml(c.copy_id)}', \`${EscapeHtml(c.mabancao).replace(/`/g, '&#96;')}\`)">Xóa</button>`
                     : '';
                 
                 tbody.innerHTML += `
                     <tr>
-                        <td><span class="badge badge-secondary">${c.mabancao || '—'}</span></td>
-                        <td>${c.book_title || '—'}<br><small class="text-muted">ISBN: ${c.isbn || ''}</small></td>
-                        <td class="text-muted">${c.isbn || '—'}</td>
-                        <td>${shelfLoc}</td>
-                        <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+                        <td><span class="badge badge-secondary">${EscapeHtml(c.mabancao) || '—'}</span></td>
+                        <td>${EscapeHtml(c.book_title) || '—'}<br><small class="text-muted">ISBN: ${EscapeHtml(c.isbn)}</small></td>
+                        <td class="text-muted">${EscapeHtml(c.isbn) || '—'}</td>
+                        <td>${EscapeHtml(shelfLoc)}</td>
+                        <td><span class="badge ${badgeClass}">${EscapeHtml(badgeText)}</span></td>
                         <td>${ngaynhap}</td>
                         <td>
-                            <button class="btn btn-secondary" style="padding:5px 10px;font-size:0.8rem" onclick="SuaBanSao('${c.copy_id}')">Sửa</button>
+                            <button class="btn btn-secondary" style="padding:5px 10px;font-size:0.8rem" onclick="SuaBanSao('${EscapeHtml(c.copy_id)}')">Sửa</button>
                             ${deleteBtn}
                         </td>
                     </tr>`;
@@ -164,7 +164,7 @@ async function TaiBanSao() {
         // Dùng tong từ API (chưa lọc keyword) cho phân trang
         RenderPhanTrang('copyPagination', 'copyPageInfo', _trangCopy, tong, HANG_COPY, 'DiTrangBanSao');
     } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:red">Lỗi: ${err.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:red">Lỗi: ${EscapeHtml(err.message)}</td></tr>`;
         RenderPhanTrang('copyPagination', 'copyPageInfo', _trangCopy, 0, HANG_COPY, 'DiTrangBanSao');
     }
 }

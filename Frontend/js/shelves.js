@@ -62,17 +62,17 @@ async function TaiKeSach() {
             res.data.forEach(s => {
                 // Chỉ Admin mới thấy nút Xoá
                 const deleteBtn = isAdminRole
-                    ? `<button class="btn btn-danger" style="padding:5px 10px;font-size:0.8rem;margin-left:5px" onclick="XoaKeSach(${s.shelf_id}, \`${s.location_code}\`)">Xóa</button>`
+                    ? `<button class="btn btn-danger" style="padding:5px 10px;font-size:0.8rem;margin-left:5px" onclick="XoaKeSach(${EscapeHtml(s.shelf_id)}, \`${EscapeHtml(s.location_code).replace(/`/g, '&#96;')}\`)">Xóa</button>`
                     : '';
                 
                 tbody.innerHTML += `
                     <tr>
-                        <td><span class="badge badge-secondary">${s.shelf_id}</span></td>
-                        <td style="font-weight:500">${s.location_code}</td>
-                        <td>${s.mota || '—'}</td>
-                        <td style="text-align:center;font-weight:bold">${s.sobancao || 0}</td>
+                        <td><span class="badge badge-secondary">${EscapeHtml(s.shelf_id)}</span></td>
+                        <td style="font-weight:500">${EscapeHtml(s.location_code)}</td>
+                        <td>${EscapeHtml(s.mota) || '—'}</td>
+                        <td style="text-align:center;font-weight:bold">${EscapeHtml(s.sobancao) || 0}</td>
                         <td>
-                            <button class="btn btn-secondary" style="padding:5px 10px;font-size:0.8rem" onclick="editShelf(${s.shelf_id})">Sửa</button>
+                            <button class="btn btn-secondary" style="padding:5px 10px;font-size:0.8rem" onclick="editShelf(${EscapeHtml(s.shelf_id)})">Sửa</button>
                             ${deleteBtn}
                         </td>
                     </tr>`;
@@ -83,7 +83,7 @@ async function TaiKeSach() {
         
         RenderPhanTrang('shelfPagination', 'shelfPageInfo', _trangShelf, tong, HANG_SHELF, 'DiTrangKeSach');
     } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:red">Lỗi: ${err.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:red">Lỗi: ${EscapeHtml(err.message)}</td></tr>`;
         RenderPhanTrang('shelfPagination', 'shelfPageInfo', _trangShelf, 0, HANG_SHELF, 'DiTrangKeSach');
     }
 }

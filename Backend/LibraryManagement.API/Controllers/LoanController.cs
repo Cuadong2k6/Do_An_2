@@ -1,7 +1,9 @@
 ﻿using BLL;
+using LibraryManagement.API.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Model.Shared;
+using System.Security.Claims;
 
 namespace LibraryManagement.API.Controllers
 {
@@ -22,6 +24,20 @@ namespace LibraryManagement.API.Controllers
         public async Task<IActionResult> taophieumuon([FromBody] LoanRequestDto req)
         {
             var result = await _loanService.taophieumuon(req.reader_id, req.copy_ids, req.due_date);
+            return result.success ? Ok(result) : BadRequest(result);
+        }
+
+        /// <summary>Bạn đọc tự mượn sách từ giỏ hàng</summary>
+        [HttpPost("mine")]
+        [Authorize(Roles = "BanDoc")]
+        public async Task<IActionResult> taophieumuongio([FromBody] GioHangMuonDto req)
+        {
+            // reader_id lấy từ token, KHÔNG nhận từ body — tránh bạn đọc mượn hộ người khác
+            var readerIdRaw = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(readerIdRaw, out var readerId))
+                return Unauthorized(ResponseModel.Fail("Token không hợp lệ."));
+
+            var result = await _loanService.taophieumuongio(readerId, req.book_ids, req.due_date);
             return result.success ? Ok(result) : BadRequest(result);
         }
 
@@ -49,6 +65,7 @@ namespace LibraryManagement.API.Controllers
         /// <summary>Lịch sử mượn của bạn đọc</summary>
         [HttpGet("history/{readerId}")]
         [Authorize]
+        [ChinhMinhHoacNhanVien("readerId")]
         public async Task<IActionResult> lichsumuon(Guid readerId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             var result = await _loanService.lichsumuon(readerId, page, pageSize);
@@ -82,5 +99,12 @@ namespace LibraryManagement.API.Controllers
         public Guid       reader_id { get; set; }
         public List<Guid> copy_ids  { get; set; } = new();
         public DateTime   due_date  { get; set; }
+    }
+
+    /// <summary>Giỏ hàng của bạn đọc: danh sách SÁCH (book_id), không phải mã bản sao.</summary>
+    public class GioHangMuonDto
+    {
+        public List<Guid> book_ids { get; set; } = new();
+        public DateTime   due_date { get; set; }
     }
 }

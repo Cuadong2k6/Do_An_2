@@ -34,6 +34,19 @@ namespace BLL
         }
 
         /// <summary>
+        /// Kiểm tra thẻ bạn đọc còn hiệu lực.
+        /// Trả về (thông báo lỗi, thẻ bạn đọc) — loi null nghĩa là hợp lệ.
+        /// </summary>
+        private async Task<(string? loi, ReaderModel? the)> khthebanDoc(Guid readerId)
+        {
+            var the = await _readerRepo.laychitietchibandoc(readerId);
+            if (the == null)                    return ("Không tìm thấy thẻ bạn đọc.", null);
+            if (the.trangthai != 0)             return ("Thẻ bạn đọc không còn hiệu lực.", null);
+            if (the.ngayhethan < DateTime.Now)  return ("Thẻ bạn đọc đã hết hạn.", null);
+            return (null, the);
+        }
+
+        /// <summary>
         /// Tạo phiếu mượn sách. copyIds là danh sách bản sao cần mượn.
         /// </summary>
         public async Task<ResponseModel> taophieumuon(Guid readerId, List<Guid> copyIds, DateTime dueDate)
@@ -41,11 +54,9 @@ namespace BLL
             if (copyIds == null || copyIds.Count == 0)
                 return ResponseModel.Fail("Danh sách sách mượn không được rỗng.");
 
-            var reader = await _readerRepo.laychitietchibandoc(readerId);
-            if (reader == null)          return ResponseModel.Fail("Không tìm thấy thẻ bạn đọc.");
-            if (reader.trangthai != 0)   return ResponseModel.Fail("Thẻ bạn đọc không còn hiệu lực.");
-            if (reader.ngayhethan < DateTime.Now) return ResponseModel.Fail("Thẻ bạn đọc đã hết hạn.");
-            if (copyIds.Count > reader.somughin)  return ResponseModel.Fail($"Vượt giới hạn số sách mượn. Tối đa: {reader.somughin} cuốn.");
+            var (loiThe, reader) = await khthebanDoc(readerId);
+            if (loiThe != null) return ResponseModel.Fail(loiThe);
+            if (copyIds.Count > reader!.somughin)  return ResponseModel.Fail($"Vượt giới hạn số sách mượn. Tối đa: {reader.somughin} cuốn.");
 
             // Đóng gói danh sách copy_id thành JSON trước khi gửi xuống SP
             var listjsonChitiet = JsonSerializer.Serialize(copyIds.Select(id => new { copy_id = id }));
@@ -69,6 +80,56 @@ namespace BLL
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Lỗi tạo phiếu mượn cho bạn đọc {ReaderID}", readerId);
+                return ResponseModel.Fail(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Bạn đọc tự mượn từ giỏ hàng. bookIds là danh sách SÁCH (book_id) cần mượn —
+        /// hệ thống tự gán bản sao đang rảnh, bạn đọc không cần biết mã bản sao.
+        /// Toàn bộ giỏ gộp thành 1 phiếu; nếu 1 cuốn không còn bản sao rảnh thì hủy cả phiếu.
+        /// Giới hạn thẻ tính CẢ sách đang mượn: đang mượn + số cuốn trong giỏ phải <= somughin.
+        /// </summary>
+        public async Task<ResponseModel> taophieumuongio(Guid readerId, List<Guid> bookIds, DateTime dueDate)
+        {
+            if (bookIds == null || bookIds.Count == 0)
+                return ResponseModel.Fail("Giỏ hàng không có sách nào để mượn.");
+
+            var (loiThe, reader) = await khthebanDoc(readerId);
+            if (loiThe != null) return ResponseModel.Fail(loiThe);
+
+            // Giới hạn mượn của thẻ là tổng số cuốn đang giữ, không phải số cuốn trong 1 phiếu
+            var soDangMuon  = await _readerRepo.sodangmuon(readerId);
+            var conDuocMuan = reader!.somughin - soDangMuon;
+            if (bookIds.Count > conDuocMuan)
+                return ResponseModel.Fail(conDuocMuan <= 0
+                    ? $"Bạn đang mượn {soDangMuon} cuốn, đã đạt giới hạn {reader.somughin} cuốn của thẻ. Hãy trả sách trước khi mượn tiếp."
+                    : $"Vượt giới hạn mượn của thẻ. Bạn đang mượn {soDangMuon}/{reader.somughin} cuốn, chỉ mượn thêm tối đa {conDuocMuan} cuốn.");
+
+            // Đóng gói danh sách book_id thành JSON trước khi gửi xuống SP
+            var listjsonChitiet = JsonSerializer.Serialize(bookIds.Select(id => new { book_id = id }));
+
+            var loan = new LoanModel
+            {
+                loan_id          = Guid.NewGuid(),
+                reader_id        = readerId,
+                loan_date        = DateTime.Now,
+                due_date         = dueDate,
+                trangthai        = 0,
+                listjson_chitiet = listjsonChitiet
+            };
+
+            try
+            {
+                await _loanRepo.taophieumuongio(loan);
+                _logger.LogInformation("Bạn đọc {ReaderID} mượn {SoSach} cuốn qua giỏ hàng, phiếu {LoanId}",
+                    readerId, bookIds.Count, loan.loan_id);
+                return ResponseModel.Ok(new { loan_id = loan.loan_id, so_sach = bookIds.Count },
+                    $"Mượn thành công {bookIds.Count} cuốn.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi tạo phiếu mượn từ giỏ hàng của bạn đọc {ReaderID}", readerId);
                 return ResponseModel.Fail(ex.Message);
             }
         }

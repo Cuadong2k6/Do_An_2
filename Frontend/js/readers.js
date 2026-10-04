@@ -74,20 +74,20 @@ async function TaiDocGia() {
                 const isAdminRole = (user.role || '').toLowerCase() === 'admin';
                 const deleteBtn = isAdminRole 
                     ? `<button class="btn btn-danger" style="padding:5px 10px;font-size:0.8rem"
-                           onclick="XoaDocGia('${r.reader_id}', \`${r.hoten}\`)">Xoá</button>`
+                           onclick="XoaDocGia('${EscapeHtml(r.reader_id)}', \`${EscapeHtml(r.hoten).replace(/`/g, '&#96;')}\`)">Xoá</button>`
                     : '';
 
                 tbody.innerHTML += `
                     <tr>
-                        <td style="font-weight:500">${r.hoten}</td>
-                        <td><span class="badge badge-secondary">${r.so_the || '—'}</span></td>
-                        <td class="text-muted">${r.email}</td>
-                        <td>${r.sodienthoai || '—'}</td>
+                        <td style="font-weight:500">${EscapeHtml(r.hoten)}</td>
+                        <td><span class="badge badge-secondary">${EscapeHtml(r.so_the) || '—'}</span></td>
+                        <td class="text-muted">${EscapeHtml(r.email)}</td>
+                        <td>${EscapeHtml(r.sodienthoai) || '—'}</td>
                         <td>${ngayhethan}</td>
                         <td><span class="badge ${badgeClass}">${badgeText}</span></td>
                         <td>
                             <button class="btn btn-secondary" style="padding:5px 10px;font-size:0.8rem"
-                                onclick="moModalSuaReader('${r.reader_id}')">Sửa</button>
+                                onclick="moModalSuaReader('${EscapeHtml(r.reader_id)}')">Sửa</button>
                             ${deleteBtn}
                         </td>
                     </tr>`;
@@ -97,7 +97,7 @@ async function TaiDocGia() {
         }
         RenderPhanTrang('readerPagination', 'readerPageInfo', _trangDocGia, tong, HANG_DOC_GIA, 'DiTrangDocGia');
     } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:red">Lỗi tải dữ liệu: ${err.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:red">Lỗi tải dữ liệu: ${EscapeHtml(err.message)}</td></tr>`;
         RenderPhanTrang('readerPagination', 'readerPageInfo', _trangDocGia, 0, HANG_DOC_GIA, 'DiTrangDocGia');
     }
 }

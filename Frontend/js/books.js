@@ -130,17 +130,17 @@ async function TaiSach() {
 
                 // Chỉ Admin mới thấy nút Xoá
                 const deleteBtn = isAdminRole 
-                    ? `<button class="btn btn-danger" style="padding: 5px 10px; font-size: 0.8rem;" onclick="XoaSach('${book.book_id}', \`${book.title.replace(/`/g, '')}\`)">Xóa</button>`
+                    ? `<button class="btn btn-danger" style="padding: 5px 10px; font-size: 0.8rem;" onclick="XoaSach('${EscapeHtml(book.book_id)}', \`${EscapeHtml(book.title).replace(/`/g, '&#96;')}\`)">Xóa</button>`
                     : '';
 
                 const row = `
                     <tr>
-                        <td style="font-weight: 500;">${book.title}</td>
-                        <td class="text-muted">${book.isbn}</td>
-                        <td>${book.tacgia || ''}</td>
+                        <td style="font-weight: 500;">${EscapeHtml(book.title)}</td>
+                        <td class="text-muted">${EscapeHtml(book.isbn)}</td>
+                        <td>${EscapeHtml(book.tacgia)}</td>
                         <td>${statusBadge}</td>
                         <td>
-                            <button class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.8rem;" onclick="SuaSach('${book.book_id}')">Sửa</button>
+                            <button class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.8rem;" onclick="SuaSach('${EscapeHtml(book.book_id)}')">Sửa</button>
                             ${deleteBtn}
                         </td>
                     </tr>

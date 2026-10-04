@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../../css/style.css">
-    <link rel="stylesheet" href="../../css/layout.css">
+    <link rel="stylesheet" href="../../css/layout.css?v=3">
     <link rel="stylesheet" href="../../css/components.css">
 </head>
 <body>
@@ -19,12 +19,7 @@
             <h2><i class="fa-solid fa-book-open"></i> Thư Viện Admin</h2>
         </div>
         <nav class="sidebar-nav">
-            <ul>
-                <li><a href="dashboard.html" class="active"><i class="fa-solid fa-chart-line"></i> Tổng Quan</a></li>
-                <li><a href="books.html"><i class="fa-solid fa-book"></i> Quản Lý Sách</a></li>
-                <li><a href="readers.html"><i class="fa-solid fa-users"></i> Độc Giả</a></li>
-                <li><a href="loans.html"><i class="fa-solid fa-hand-holding-hand"></i> Mượn - Trả</a></li>
-            </ul>
+            <ul id="adminMenu"></ul>
         </nav>
         <div class="sidebar-footer" style="padding: 15px;">
             <button id="logoutBtn" class="btn btn-secondary btn-block"><i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng Xuất</button>
@@ -116,8 +111,9 @@
     </main>
 </div>
 
-<script src="../../js/api.js"></script>
-<script src="../../js/auth.js"></script>
+<script src="../../js/api.js?v=3"></script>
+<script src="../../js/auth.js?v=3"></script>
+<script src="../../js/sidebar.js?v=1"></script>
 <script>
     // Kiểm tra quyền truy cập (Admin và Thủ thư được vào)
     YeuCauXacThuc(['admin','Admin','thuthu','ThuThu']);

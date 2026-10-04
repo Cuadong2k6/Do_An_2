@@ -1,4 +1,6 @@
-﻿namespace Model.Reader {
+﻿using System.Text.Json.Serialization;
+
+namespace Model.Reader {
     /// <summary>
     /// Thẻ bạn đọc
     /// trangthai: 0 = Hoạt động, 1 = Hết hạn, 2 = Bị khoá
@@ -8,6 +10,8 @@
         public Guid reader_id { get; set; }
         public string hoten { get; set; } = string.Empty;
         public string email { get; set; } = string.Empty;
+        /// <summary>Hash mật khẩu — chỉ dùng nội bộ để xác thực, KHÔNG serialize ra client.</summary>
+        [JsonIgnore]
         public string matkhau { get; set; } = string.Empty;
         public string sodienthoai { get; set; } = string.Empty;
         public string diachi { get; set; } = string.Empty;
