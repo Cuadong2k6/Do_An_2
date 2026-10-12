@@ -2,12 +2,14 @@ using BLL;
 using DAL;
 using DAL.Helper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using System.IO;
 using System.Text;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,9 +54,45 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
-// ===================== CORS =====================
-builder.Services.AddCors(opt =>
-    opt.AddPolicy("AllowAll", p => p.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
+// ===================== RATE LIMITING =====================
+var rateLimitPermit    = builder.Configuration.GetValue<int>("RateLimit:PermitLimit", 100);
+var rateLimitWindowSec = builder.Configuration.GetValue<int>("RateLimit:WindowSeconds", 60);
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                AutoReplenishment = true,
+                PermitLimit = rateLimitPermit,
+                QueueLimit  = 0,
+                Window     = TimeSpan.FromSeconds(rateLimitWindowSec)
+            }));
+});
+
+// ===================== HEALTH CHECKS =====================
+builder.Services.AddHealthChecks();
+
+// ===================== CORS (whitelist từ cấu hình) =====================
+var corsOrigins = builder.Configuration
+    .GetSection("Cors:AllowedOrigins")
+    .Get<string[]>() ?? Array.Empty<string>();
+
+if (corsOrigins.Length == 0)
+{
+    Log.Warning("Cors:AllowedOrigins trống — dùng AllowAnyOrigin. Nên cấu hình whitelist cho production.");
+    builder.Services.AddCors(opt =>
+        opt.AddPolicy("ApiCors", p => p.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
+}
+else
+{
+    builder.Services.AddCors(opt =>
+        opt.AddPolicy("ApiCors", p =>
+            p.WithOrigins(corsOrigins).AllowAnyHeader().AllowAnyMethod()));
+}
 
 // ===================== DI — Infrastructure =====================
 var connStr = builder.Configuration.GetConnectionString("DefaultConnection")!;
@@ -118,6 +156,23 @@ builder.Services.AddSwaggerGen(c =>
 // ===================== BUILD APP =====================
 var app = builder.Build();
 
+// Lỗi chưa bắt → JSON (tránh text/plain Microsoft.* làm frontend JSON.parse vỡ)
+app.UseExceptionHandler(errApp =>
+{
+    errApp.Run(async context =>
+    {
+        var ex = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature>()?.Error;
+        Log.Error(ex, "Unhandled exception");
+        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        context.Response.ContentType = "application/json";
+        await context.Response.WriteAsJsonAsync(new
+        {
+            success = false,
+            message = "Lỗi hệ thống. Vui lòng thử lại sau."
+        });
+    });
+});
+
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
@@ -142,11 +197,13 @@ app.UseStaticFiles(new StaticFileOptions
 });
 
 app.UseSerilogRequestLogging();
-app.UseCors("AllowAll");
+app.UseRateLimiter();
+app.UseCors("ApiCors");
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHealthChecks("/health");
 
 Log.Information("Library Management System API đang chạy...");
 app.Run();

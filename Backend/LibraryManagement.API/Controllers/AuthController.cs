@@ -18,6 +18,7 @@ namespace LibraryManagement.API.Controllers
 
         /// <summary>Đăng nhập (Admin / Thủ thư / Bạn đọc)</summary>
         [HttpPost("login")]
+        [AllowAnonymous]
         public async Task<IActionResult> dangnhap([FromBody] LoginDto req)
         {
             var result = await _authService.dangnhap(req.tendangnhap, req.matkhau);

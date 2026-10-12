@@ -59,7 +59,7 @@ async function GoiAPI(endpoint, method = 'GET', body = null) {
 
     try {
         const response = await fetch(url, options);
-        
+
         // Xử lý Unauthorized
         if (response.status === 401) {
             localStorage.removeItem('token');
@@ -68,12 +68,25 @@ async function GoiAPI(endpoint, method = 'GET', body = null) {
             throw new Error("Phiên đăng nhập hết hạn.");
         }
 
-        const data = await response.json();
-        
-        if (!response.ok) {
-            throw new Error(data.message || `Lỗi API: ${response.status}`);
+        const raw = await response.text();
+        let data = null;
+        try {
+            data = raw ? JSON.parse(raw) : null;
+        } catch {
+            const snippet = (raw || '').trim().slice(0, 120);
+            throw new Error(
+                response.ok
+                    ? 'Phản hồi API không phải JSON.'
+                    : (snippet.startsWith('Microsoft.') || snippet.includes('SqlException')
+                        ? 'Không kết nối được database. Kiểm tra SQL Server đang chạy và ConnectionStrings.'
+                        : `Lỗi API ${response.status}: ${snippet || 'không có nội dung'}`)
+            );
         }
-        
+
+        if (!response.ok) {
+            throw new Error((data && data.message) || `Lỗi API: ${response.status}`);
+        }
+
         return data;
     } catch (error) {
         console.error('API Error:', error);
