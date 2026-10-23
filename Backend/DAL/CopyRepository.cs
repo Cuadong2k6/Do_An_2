@@ -45,7 +45,9 @@ namespace DAL
                 copy_id  = model.copy_id,
                 book_id  = model.book_id,
                 mabancao = model.mabancao,
-                shelf_id = model.shelf_id
+                shelf_id = model.shelf_id,
+                status   = model.status,
+                ngaynhap = model.ngaynhap
             });
         }
 

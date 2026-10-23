@@ -32,4 +32,22 @@
         public decimal sotienphat { get; set; }
         public bool is_paid { get; set; }
     }
+
+    /// <summary>Thống kê dashboard</summary>
+    public class DashboardStatsModel
+    {
+        public int tong_sach { get; set; }
+        public int doc_gia_dang_ky { get; set; }
+        public int qua_han_tra { get; set; }
+        public IEnumerable<RecentLoanModel> giao_dich_gan_day { get; set; } = Array.Empty<RecentLoanModel>();
+    }
+
+    /// <summary>Giao dịch gần đây cho dashboard</summary>
+    public class RecentLoanModel
+    {
+        public string ma_giao_dich { get; set; } = string.Empty;
+        public string doc_gia { get; set; } = string.Empty;
+        public DateTime ngay_muon { get; set; }
+        public string trang_thai { get; set; } = string.Empty;
+    }
 }

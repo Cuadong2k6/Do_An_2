@@ -1,4 +1,5 @@
-// Worker service cho notification queue
+using LibraryManagement.API.Services;
+
 namespace LibraryManagement.API.BackgroundServices
 {
     public class NotificationWorkerService : BackgroundService
@@ -6,15 +7,18 @@ namespace LibraryManagement.API.BackgroundServices
         private readonly ILogger<NotificationWorkerService> _logger;
         private readonly INotificationQueue _notificationQueue;
         private readonly IServiceProvider _serviceProvider;
+        private readonly IConfiguration _configuration;
 
         public NotificationWorkerService(
             ILogger<NotificationWorkerService> logger,
             INotificationQueue notificationQueue,
-            IServiceProvider serviceProvider)
+            IServiceProvider serviceProvider,
+            IConfiguration configuration)
         {
             _logger = logger;
             _notificationQueue = notificationQueue;
             _serviceProvider = serviceProvider;
+            _configuration = configuration;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -77,43 +81,43 @@ namespace LibraryManagement.API.BackgroundServices
             using var scope = _serviceProvider.CreateScope();
             var emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
 
-            try
-            {
-                await emailService.SendEmailAsync(message.Subject, message.Body, message.Recipient);
-                _logger.LogInformation("Đã gửi email thành công tới {Recipient}", message.Recipient);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Lỗi khi gửi email tới {Recipient}", message.Recipient);
-                HandleNotificationFailure(message);
-            }
+            await emailService.SendEmailAsync(message.Subject, message.Body, message.Recipient);
+            _logger.LogInformation("Đã gửi email thành công tới {Recipient}", message.Recipient);
         }
 
-        private async Task SendPushNotificationAsync(NotificationMessage message, CancellationToken stoppingToken)
+        private Task SendPushNotificationAsync(NotificationMessage message, CancellationToken stoppingToken)
         {
-            // Implement push notification logic
-            _logger.LogInformation("Đã gửi push notification tới {Recipient}", message.Recipient);
+            _logger.LogWarning("Push notification chưa được hỗ trợ (Recipient: {Recipient})", message.Recipient);
+            return Task.CompletedTask;
         }
 
-        private async Task SendSmsNotificationAsync(NotificationMessage message, CancellationToken stoppingToken)
+        private Task SendSmsNotificationAsync(NotificationMessage message, CancellationToken stoppingToken)
         {
-            // Implement SMS notification logic
-            _logger.LogInformation("Đã gửi SMS tới {Recipient}", message.Recipient);
+            _logger.LogWarning("SMS notification chưa được hỗ trợ (Recipient: {Recipient})", message.Recipient);
+            return Task.CompletedTask;
         }
 
         private void HandleNotificationFailure(NotificationMessage message)
         {
-            message.RetryCount++;
-            message.NextRetryAt = DateTime.UtcNow.Add(TimeSpan.FromMinutes(Math.Pow(2, message.RetryCount)));
+            var retryConfig = _configuration.GetSection("Notification:Queue:RetryPolicy");
+            var maxRetryCount = int.Parse(retryConfig["MaxRetryCount"] ?? "5");
+            var initialDelaySeconds = int.Parse(retryConfig["InitialDelaySeconds"] ?? "30");
+            var maxDelaySeconds = int.Parse(retryConfig["MaxDelaySeconds"] ?? "3600");
 
-            if (message.RetryCount < message.RetryCount)
+            message.RetryCount++;
+
+            var delaySeconds = Math.Min(initialDelaySeconds * Math.Pow(2, message.RetryCount - 1), maxDelaySeconds);
+            message.NextRetryAt = DateTime.UtcNow.AddSeconds(delaySeconds);
+
+            if (message.RetryCount <= maxRetryCount)
             {
                 _notificationQueue.EnqueueNotification(message);
-                _logger.LogWarning("Đặt lại notification {MessageId} để thử lại vào {NextRetry}", message.Id, message.NextRetryAt);
+                _logger.LogWarning("Đặt lại notification {MessageId} để thử lại vào {NextRetry} (lần {RetryCount}/{MaxRetry})", 
+                    message.Id, message.NextRetryAt, message.RetryCount, maxRetryCount);
             }
             else
             {
-                _logger.Error("Notification {MessageId} đã thử lại hết số lần", message.Id);
+                _logger.LogError("Notification {MessageId} đã thử lại hết số lần ({MaxRetry})", message.Id, maxRetryCount);
             }
         }
     }

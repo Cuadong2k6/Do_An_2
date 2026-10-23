@@ -28,6 +28,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
 }
 
 .sidebar-header h2 {
@@ -39,6 +40,8 @@
 .sidebar-nav {
     padding: var(--spacing-md) 0;
     flex: 1;
+    min-height: 0;
+    overflow-y: auto;
 }
 
 .sidebar-nav ul {
@@ -67,6 +70,10 @@
 .sidebar-nav i {
     margin-right: var(--spacing-md);
     font-size: 1.2rem;
+}
+
+.sidebar-footer {
+    flex-shrink: 0;
 }
 
 /* Main Content Area */

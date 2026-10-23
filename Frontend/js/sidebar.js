@@ -1,10 +1,5 @@
 // ==========================================================================
-// MENU ADMIN — nguồn DUY NHẤT cho menu sidebar trang quản trị.
-//
-// Trước đây menu được copy-paste tay vào từng file HTML nên các trang lệch
-// nhau (thiếu mục, sai thứ tự). Giờ cả 10 trang đều gọi chung file này.
-//
-// Thêm / sửa / bỏ một mục menu → chỉ sửa MENU_ADMIN bên dưới, không đụng HTML.
+// MENU ADMIN & LIBRARIAN — nguồn DUY NHẤT cho menu sidebar trang quản trị.
 //
 // Mọi chuỗi ở đây đều là hằng số viết tay trong code, KHÔNG có dữ liệu từ
 // người dùng hay từ URL nào được chèn vào HTML → không có đường XSS.
@@ -24,17 +19,57 @@ const MENU_ADMIN = [
     { href: 'nhatky.html',       icon: 'fa-clock-rotate-left',  ten: 'Nhật Ký' }
 ];
 
-// Script nằm cuối <body> nên thẻ <ul id="adminMenu"> đã được đọc xong.
-(function VeMenuAdmin() {
-    const ul = document.getElementById('adminMenu');
-    if (!ul) return;   // trang không có sidebar admin → bỏ qua, không báo lỗi
+const MENU_LIBRARIAN = [
+    { href: 'dashboard.html',    icon: 'fa-chart-line',         ten: 'Tổng Quan' },
+    { href: 'books.html',        icon: 'fa-book',               ten: 'Quản Lý Sách' },
+    { href: 'copies.html',       icon: 'fa-copy',               ten: 'Bản Sao Sách' },
+    { href: 'readers.html',      icon: 'fa-users',              ten: 'Độc Giả' },
+    { href: 'loans.html',        icon: 'fa-hand-holding-hand', ten: 'Mượn - Trả' },
+    { href: 'reservations.html', icon: 'fa-calendar-check',     ten: 'Đặt Chỗ' },
+    { href: 'fines.html',        icon: 'fa-money-bill-wave',    ten: 'Tiền Phạt' },
+    { href: 'reports.html',      icon: 'fa-chart-bar',          ten: 'Báo Cáo' }
+];
 
-    // 'pages/admin/books.html' → 'books.html'
+// Script nằm cuối <body> — tự chọn đúng <ul> theo trang.
+(function VeMenu() {
+    const isLibrarian = location.pathname.includes('/librarian/');
+    const ul = document.getElementById(isLibrarian ? 'librarianMenu' : 'adminMenu');
+    if (!ul) return;
+
     const trangHienTai = location.pathname.split('/').pop();
+    const menuToUse = isLibrarian ? MENU_LIBRARIAN : MENU_ADMIN;
 
-    ul.innerHTML = MENU_ADMIN.map(m => {
+    ul.innerHTML = menuToUse.map(m => {
         const active = (m.href === trangHienTai) ? ' class="active"' : '';
-        return `<li><a href="${m.href}"${active}>` +
-               `<i class="fa-solid ${m.icon}"></i> ${m.ten}</a></li>`;
+        return '<li><a href="' + m.href + '"' + active + '>' +
+               '<i class="fa-solid ' + m.icon + '"></i> ' + m.ten + '</a></li>';
     }).join('');
+})();
+
+// Page guard - bảo vệ các trang admin/librarian/reader
+(function PageGuard() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        window.location.replace('/index.html');
+        return;
+    }
+
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const role = (user.role || '').toLowerCase();
+    const currentPath = window.location.pathname;
+
+    if (currentPath.includes('/admin/') && role !== 'admin') {
+        window.location.replace('/index.html');
+        return;
+    }
+
+    if (currentPath.includes('/librarian/') && role !== 'thuthu') {
+        window.location.replace('/index.html');
+        return;
+    }
+
+    if (currentPath.includes('/reader/') && role !== 'user' && role !== 'bandoc' && role !== 'reader') {
+        window.location.replace('/index.html');
+        return;
+    }
 })();

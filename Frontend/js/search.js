@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
         traCuuSach(); // hiển thị toàn bộ sách khi vào trang
 
         // Chỉ bạn đọc mới được tự mượn từ giỏ hàng
-        if (LaBanDoc()) {
+        if (LaBanDoc() && !DangChoThanhToan()) {
             napsoihanGioHang();
             document.getElementById('btnGioHang').style.display = 'inline-block';
         }
@@ -38,6 +38,10 @@ document.addEventListener('DOMContentLoaded', () => {
 function LaBanDoc() {
     const role = (JSON.parse(localStorage.getItem('user') || '{}').role || '').toLowerCase();
     return role === 'bandoc' || role === 'reader';
+}
+
+function DangChoThanhToan() {
+    return Number(JSON.parse(localStorage.getItem('user') || '{}').onboarding_status) === 1;
 }
 
 // Lấy giới hạn mượn (somughin) và số cuốn đang mượn của chính bạn đọc đang đăng nhập

@@ -58,6 +58,17 @@ namespace BLL
             return ResponseModel.Ok(reader);
         }
 
+        public async Task<ResponseModel> CapNhatHoSoAsync(Guid readerId, string hoten, string? sodienthoai, string? diachi)
+        {
+            if (string.IsNullOrWhiteSpace(hoten) || hoten.Length > 200)
+                return ResponseModel.Fail("Họ tên không hợp lệ.");
+            if (sodienthoai?.Length > 15 || diachi?.Length > 300)
+                return ResponseModel.Fail("Số điện thoại hoặc địa chỉ quá dài.");
+
+            await _readerRepo.CapNhatHoSoAsync(readerId, hoten.Trim(), sodienthoai, diachi);
+            return ResponseModel.Ok(null, "Cập nhật hồ sơ thành công.");
+        }
+
         public async Task<ResponseModel> dangkymoi(ReaderModel model)
         {
             if (string.IsNullOrWhiteSpace(model.hoten))   return ResponseModel.Fail("Họ tên không được để trống.");

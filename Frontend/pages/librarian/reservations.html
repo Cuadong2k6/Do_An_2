@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Đặt Chỗ - Thủ Thư</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/layout.css?v=4">
+    <link rel="stylesheet" href="../../css/components.css">
+</head>
+<body>
+
+<div class="app-wrapper">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fa-solid fa-book-open"></i> Thư Viện HYUTE</h2>
+        </div>
+        <nav class="sidebar-nav">
+            <ul id="librarianMenu"></ul>
+        </nav>
+        <div class="sidebar-footer" style="padding: 15px;">
+            <button id="logoutBtn" class="btn btn-secondary btn-block"><i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng Xuất</button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="top-header">
+            <div class="header-search">
+                <i class="fa-solid fa-magnifying-glass text-muted"></i>
+                <input type="text" id="resSearchInput" placeholder="Tìm: tên Độc Giả, số thẻ, tên sách..." oninput="TimkiemDatCho()">
+            </div>
+            <div class="header-user">
+                <span style="font-weight: 500;" id="userNameDisplay">Thủ Thư</span>
+                <div class="avatar">T</div>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <div class="content-container table-page">
+            <div class="d-flex justify-between align-center" style="margin-bottom: 8px;">
+                <h1 style="color: var(--primary-color);">Quản Lý Đặt Chỗ</h1>
+            </div>
+
+            <!-- Bộ lọc -->
+            <div class="d-flex" style="gap:8px;margin-bottom:8px;flex-wrap:wrap;">
+                <select id="filterResStatus" class="form-control" onchange="TimkiemDatCho()" style="flex:1;min-width:150px">
+                    <option value="">Mọi trạng thái</option>
+                    <option value="0">Chờ duyệt</option>
+                    <option value="1">Đã duyệt</option>
+                    <option value="2">Đã hủy</option>
+                </select>
+                <button class="btn btn-secondary" onclick="DatLaiLocDatCho()">Đặt lại</button>
+            </div>
+
+            <div class="card">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Mã Đặt Chỗ</th>
+                                <th>Độc Giả</th>
+                                <th>Sách</th>
+                                <th>Ngày Đặt</th>
+                                <th>Trạng Thái</th>
+                                <th>Ghi Chú</th>
+                                <th>Thao Tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reservationTableBody">
+                            <tr><td colspan="7" style="text-align:center">Đang tải dữ liệu...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="d-flex justify-between align-center mt-2 pt-2" style="border-top: 1px solid var(--border-color);">
+                    <span class="text-muted" id="resPageInfo" style="font-size: 0.85rem;"></span>
+                    <div id="resPagination" style="display: flex; gap: 5px;"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script src="../../js/api.js?v=3"></script>
+<script src="../../js/auth.js?v=3"></script>
+<script src="../../js/sidebar.js?v=1"></script>
+<script src="../../js/reservations.js?v=3"></script>
+<script>
+    YeuCauXacThuc(['admin','Admin','thuthu','ThuThu']);
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if(user.name) document.getElementById('userNameDisplay').textContent = user.name;
+</script>
+</body>
+</html>
+
+</arg_value>

@@ -18,12 +18,12 @@ function EscapeHtml(s) {
 
 // Tự động phát hiện origin để chọn đúng endpoint API:
 //   - Frontend được serve bởi chính API (localhost:5095 hoặc :7126) → dùng relative '/api'
-//   - Frontend chạy độc lập (Live Server, file://) → trỏ thẳng tới API https://localhost:7126/api
+//   - Frontend chạy độc lập trên localhost → trỏ tới API local https://localhost:7126/api
 const API_BASE_URL = (() => {
     const host  = window.location.hostname;
     const port  = window.location.port;
     const laApi = (host === 'localhost' || host === '127.0.0.1')
-                  && (port === '7126' || port === '5095');
+                  && ['7126', '5095', '8080'].includes(port);
     return laApi ? '/api' : 'https://localhost:7126/api';
 })();
 

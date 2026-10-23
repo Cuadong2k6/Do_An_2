@@ -27,6 +27,7 @@
     <ProjectReference Include="..\BLL\BLL.csproj" />
     <ProjectReference Include="..\DAL\DAL.csproj" />
     <ProjectReference Include="..\Model\Model.csproj" />
+    <ProjectReference Include="..\LibraryManagement.API\LibraryManagement.API.csproj" />
   </ItemGroup>
 
 </Project>

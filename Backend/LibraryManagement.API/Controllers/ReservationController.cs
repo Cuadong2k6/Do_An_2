@@ -43,6 +43,7 @@ namespace LibraryManagement.API.Controllers
         [HttpGet("by-reader/{readerId:guid}")]
         [Authorize]
         [ChinhMinhHoacNhanVien("readerId")]
+        [ChanPendingPayment]
         public async Task<IActionResult> danhsachdatchocuabandoc(
             Guid readerId,
             [FromQuery] int page     = 1,

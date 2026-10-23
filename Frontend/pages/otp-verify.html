@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xác thực Email - Hệ thống Quản lý Thư viện</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <style>
+        .otp-card { width: 100%; max-width: 420px; padding: 40px 30px; }
+        .otp-header { text-align: center; margin-bottom: 30px; }
+        .otp-header h1 { color: var(--primary-color); margin-bottom: 8px; font-size: 1.5rem; }
+        .otp-header p { color: var(--text-muted); font-size: 0.9rem; }
+        .msg-box {
+            display: none;
+            padding: 10px;
+            border-radius: var(--border-radius-sm);
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+        .msg-error { background-color: #fee2e2; color: #991b1b; }
+        .msg-ok { background-color: #dcfce7; color: #166534; }
+        .hidden { display: none !important; }
+        .otp-input { letter-spacing: 0.5em; text-align: center; font-size: 1.25rem; }
+        .link-btn {
+            background: none; border: none; color: var(--primary-color);
+            cursor: pointer; font-size: 0.85rem; text-decoration: underline; padding: 0;
+        }
+        .link-btn:disabled { color: var(--text-muted); cursor: not-allowed; }
+        .back-link { display: inline-block; margin-top: 16px; font-size: 0.85rem; color: var(--primary-color); text-decoration: none; }
+        .back-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="full-screen-center">
+        <div class="card otp-card">
+            <div class="otp-header">
+                <h1>Xác thực Email</h1>
+                <p>Nhập email để nhận mã OTP gồm 6 chữ số.</p>
+            </div>
+
+            <!-- Thông báo lỗi / thành công dùng aria-live cho screen reader -->
+            <div id="stepMsg" class="msg-box" role="alert" aria-live="polite"></div>
+
+            <!-- Bước 1: Nhập email -->
+            <form id="formEmail">
+                <div class="form-group">
+                    <label for="inputEmail">Email</label>
+                    <input type="email" id="inputEmail" class="form-control" placeholder="vidu@email.com" required autocomplete="email">
+                </div>
+                <button type="submit" class="btn btn-primary full-width" id="btnGuiOtp">Gửi mã OTP</button>
+            </form>
+
+            <!-- Bước 2: Nhập OTP -->
+            <form id="formOtp" class="hidden">
+                <p style="font-size:0.9rem;color:var(--text-muted);margin-bottom:12px;text-align:center;">
+                    Mã OTP đã gửi đến: <strong id="hienThiEmail"></strong>
+                </p>
+                <div class="form-group">
+                    <label for="inputOtp">Mã OTP (6 chữ số)</label>
+                    <input type="text" id="inputOtp" class="form-control otp-input" maxlength="6" inputmode="numeric" pattern="[0-9]{6}" placeholder="000000" required autocomplete="one-time-code">
+                </div>
+                <button type="submit" class="btn btn-primary full-width" id="btnXacThuc">Xác thực</button>
+
+                <div style="display:flex;justify-content:space-between;margin-top:12px;">
+                    <button type="button" class="link-btn" id="btnDoiEmail">Đổi email</button>
+                    <button type="button" class="link-btn" id="btnGuiLai" disabled>Gửi lại (<span id="demNguoc">60</span>s)</button>
+                </div>
+            </form>
+
+            <!-- Bước 3: Thành công -->
+            <div id="ketQua" class="hidden" style="text-align:center;">
+                <p style="color:#166534;font-weight:600;font-size:1rem;margin-bottom:8px;">Email đã được xác thực thành công!</p>
+                <p style="font-size:0.85rem;color:var(--text-muted);">Chức năng tạo tài khoản hiện chưa khả dụng. Vui lòng quay lại sau.</p>
+            </div>
+
+            <a href="../index.html" class="back-link">&larr; Quay lại đăng nhập</a>
+        </div>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/otp.js"></script>
+</body>
+</html>

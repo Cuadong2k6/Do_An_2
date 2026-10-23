@@ -10,6 +10,7 @@
   <ItemGroup>
     <PackageReference Include="BCrypt.Net-Next" Version="4.2.0" />
     <PackageReference Include="Dapper" Version="2.1.86" />
+    <PackageReference Include="Google.Apis.Auth" Version="1.68.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.1.2" />
@@ -24,7 +25,7 @@
     <ProjectReference Include="..\Model\Model.csproj" />
   </ItemGroup>
 
-  <!-- Stub OAuth/QR/Email/Jwt custom chưa xong, controller không dùng — tạm loại khỏi build -->
+  <!-- Stub OAuth/QR/Jwt custom chưa xong, controller không dùng — tạm loại khỏi build -->
   <ItemGroup>
     <Compile Remove="Middleware\JwtMiddleware.cs" />
     <Compile Remove="Extensions\MiddlewareExtensions.cs" />
@@ -32,16 +33,12 @@
     <Compile Remove="Services\PaymentQRScanner.cs" />
     <Compile Remove="Services\QRTransactionService.cs" />
     <Compile Remove="Services\QRCodeGenerator.cs" />
-    <Compile Remove="Services\EmailService.cs" />
-    <Compile Remove="Services\IEmailService.cs" />
     <Compile Remove="Services\JwtService.cs" />
     <Compile Remove="Models\QRScanResult.cs" />
     <Compile Remove="Models\QRTransaction.cs" />
     <Compile Remove="Models\QRCodeModel.cs" />
     <Compile Remove="Models\AuthenticationResult.cs" />
     <Compile Remove="Models\OAuthTokenResponse.cs" />
-    <Compile Remove="BackgroundServices\NotificationWorkerService.cs" />
-    <Compile Remove="BackgroundServices\NotificationQueue.cs" />
   </ItemGroup>
 
 </Project>

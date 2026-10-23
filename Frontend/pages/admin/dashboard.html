@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../../css/style.css">
-    <link rel="stylesheet" href="../../css/layout.css?v=3">
+    <link rel="stylesheet" href="../../css/layout.css?v=4">
     <link rel="stylesheet" href="../../css/components.css">
 </head>
 <body>
@@ -16,7 +16,7 @@
     <!-- Sidebar -->
     <aside class="sidebar">
         <div class="sidebar-header">
-            <h2><i class="fa-solid fa-book-open"></i> Thư Viện Admin</h2>
+            <h2><i class="fa-solid fa-book-open"></i> Thư Viện HYUTE</h2>
         </div>
         <nav class="sidebar-nav">
             <ul id="adminMenu"></ul>
@@ -43,14 +43,14 @@
         <!-- Page Content -->
         <div class="content-container">
             <h1 style="margin-bottom: 24px; color: var(--primary-color);">Bảng Điều Khiển</h1>
-            
+
             <div class="d-flex" style="gap: 20px; flex-wrap: wrap;">
                 <!-- Stat Card 1 -->
                 <div class="card" style="flex: 1; min-width: 200px; display: flex; align-items: center; gap: 15px;">
                     <div style="font-size: 2.5rem; color: var(--primary-color);"><i class="fa-solid fa-book"></i></div>
                     <div>
                         <div class="text-muted" style="font-size: 0.9rem;">Tổng Số Sách</div>
-                        <div style="font-size: 1.5rem; font-weight: bold;">1,254</div>
+                        <div style="font-size: 1.5rem; font-weight: bold;" id="statTongSach">0</div>
                     </div>
                 </div>
                 <!-- Stat Card 2 -->
@@ -58,7 +58,7 @@
                     <div style="font-size: 2.5rem; color: var(--secondary-color);"><i class="fa-solid fa-users"></i></div>
                     <div>
                         <div class="text-muted" style="font-size: 0.9rem;">Độc Giả Đăng Ký</div>
-                        <div style="font-size: 1.5rem; font-weight: bold;">458</div>
+                        <div style="font-size: 1.5rem; font-weight: bold;" id="statDocGia">0</div>
                     </div>
                 </div>
                 <!-- Stat Card 3 -->
@@ -66,7 +66,7 @@
                     <div style="font-size: 2.5rem; color: var(--danger-color);"><i class="fa-solid fa-clock-rotate-left"></i></div>
                     <div>
                         <div class="text-muted" style="font-size: 0.9rem;">Quá Hạn Trả</div>
-                        <div style="font-size: 1.5rem; font-weight: bold;">32</div>
+                        <div style="font-size: 1.5rem; font-weight: bold;" id="statQuaHan">0</div>
                     </div>
                 </div>
             </div>
@@ -83,25 +83,7 @@
                                 <th>Trạng Thái</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td>#LN-001</td>
-                                <td>Nguyễn Văn A</td>
-                                <td>15/09/2026</td>
-                                <td><span class="badge badge-warning">Đang mượn</span></td>
-                            </tr>
-                            <tr>
-                                <td>#LN-002</td>
-                                <td>Trần Thị B</td>
-                                <td>10/09/2026</td>
-                                <td><span class="badge badge-danger">Quá hạn</span></td>
-                            </tr>
-                            <tr>
-                                <td>#LN-003</td>
-                                <td>Lê Văn C</td>
-                                <td>01/09/2026</td>
-                                <td><span class="badge badge-success">Đã trả</span></td>
-                            </tr>
+                        <tbody id="tblGiaoDichGanDay">
                         </tbody>
                     </table>
                 </div>
@@ -114,10 +96,11 @@
 <script src="../../js/api.js?v=3"></script>
 <script src="../../js/auth.js?v=3"></script>
 <script src="../../js/sidebar.js?v=1"></script>
+<script src="../../js/dashboard.js?v=1"></script>
 <script>
     // Kiểm tra quyền truy cập (Admin và Thủ thư được vào)
     YeuCauXacThuc(['admin','Admin','thuthu','ThuThu']);
-    
+
     // Hiển thị tên người dùng
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     if(user.name) document.getElementById('userNameDisplay').textContent = user.name;

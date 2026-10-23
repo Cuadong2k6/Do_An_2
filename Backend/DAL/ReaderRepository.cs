@@ -5,7 +5,12 @@ using System.Data;
 
 namespace DAL
 {
-    public class ReaderRepository
+    public interface IGoogleReaderRepository
+    {
+        Task<GoogleReaderLoginResult?> DangNhapBangGoogleAsync(string googleSub, string email, string hoten, string? soThe);
+    }
+
+    public class ReaderRepository : IGoogleReaderRepository
     {
         private readonly IDatabaseHelper _db;
 
@@ -35,6 +40,17 @@ namespace DAL
         public async Task<ReaderModel?> laychitietchibandoc(Guid readerId)
         {
             return await _db.QueryFirstOrDefaultAsync<ReaderModel>("sp_reader_getbyid", new { reader_id = readerId });
+        }
+
+        public async Task CapNhatHoSoAsync(Guid readerId, string hoten, string? sodienthoai, string? diachi)
+        {
+            await _db.ExecuteAsync("sp_reader_update_profile", new
+            {
+                reader_id = readerId,
+                hoten,
+                sodienthoai,
+                diachi
+            });
         }
 
         /// <summary>Số cuốn bạn đọc đang mượn (chưa trả, tính cả phiếu quá hạn)</summary>
@@ -85,6 +101,21 @@ namespace DAL
         public async Task xoadocgia(Guid readerId)
         {
             await _db.ExecuteAsync("sp_reader_delete", new { reader_id = readerId });
+        }
+
+        /// <summary>Đăng nhập bạn đọc qua Google OAuth</summary>
+        public async Task<GoogleReaderLoginResult?> DangNhapBangGoogleAsync(
+            string googleSub, string email, string hoten, string? soThe)
+        {
+            return await _db.QueryFirstOrDefaultAsync<GoogleReaderLoginResult>(
+                "sp_google_reader_login",
+                new
+                {
+                    google_sub = googleSub,
+                    email = email,
+                    hoten = hoten,
+                    so_the = soThe
+                });
         }
     }
 }

@@ -47,5 +47,11 @@ namespace BLL
             _logger.LogInformation("Báo cáo quá hạn: {Count} phiếu", items.Count());
             return ResponseModel.Ok(items, totalItems: items.Count());
         }
+
+        public async Task<ResponseModel> laythongkedashboard()
+        {
+            var stats = await _reportRepo.laythongkedashboard();
+            return ResponseModel.Ok(stats);
+        }
     }
 }

@@ -2,10 +2,12 @@ using BLL;
 using DAL;
 using DAL.Helper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using LibraryManagement.API.Services;
 using Serilog;
 using System.IO;
 using System.Text;
@@ -101,6 +103,8 @@ builder.Services.AddTransient<IDatabaseHelper>(_ => new DatabaseHelper(connStr))
 // ===================== DI — DAL (Repositories) =====================
 builder.Services.AddTransient<BookRepository>();
 builder.Services.AddTransient<ReaderRepository>();
+builder.Services.AddTransient<DAL.IGoogleReaderRepository>(sp => sp.GetRequiredService<ReaderRepository>());
+builder.Services.AddTransient<GoogleTokenValidator>();
 builder.Services.AddTransient<LoanRepository>();
 builder.Services.AddTransient<FineRepository>();
 builder.Services.AddTransient<ShelfRepository>();
@@ -108,21 +112,37 @@ builder.Services.AddTransient<CopyRepository>();
 builder.Services.AddTransient<ReservationRepository>();
 builder.Services.AddTransient<ReportRepository>();
 builder.Services.AddTransient<NhatkyRepository>();
+builder.Services.AddTransient<IPasswordResetRepository, PasswordResetRepository>();
+builder.Services.AddTransient<DAL.IOtpRepository, DAL.OtpRepository>();
 
 // ===================== DI — BLL (Services) =====================
+builder.Services.AddTransient<BLL.IOtpService, BLL.OtpService>();
 builder.Services.AddTransient<BookService>();
 builder.Services.AddTransient<ReaderService>();
 builder.Services.AddTransient<LoanService>();
 builder.Services.AddTransient<FineService>();
-builder.Services.AddTransient<AuthService>();
+builder.Services.AddTransient<AuthService>(sp => new AuthService(
+    sp.GetRequiredService<IDatabaseHelper>(),
+    sp.GetRequiredService<IConfiguration>(),
+    sp.GetRequiredService<ILogger<AuthService>>(),
+    sp.GetRequiredService<IPasswordResetRepository>(),
+    sp.GetRequiredService<BLL.IHangDoiThongBao>(),
+    sp.GetRequiredService<ReaderRepository>()));
 builder.Services.AddTransient<ShelfService>();
 builder.Services.AddTransient<CopyService>();
 builder.Services.AddTransient<ReservationService>();
 builder.Services.AddTransient<ReportService>();
 builder.Services.AddTransient<NhatkyService>();
 
+// ===================== NOTIFICATION & BACKGROUND SERVICES =====================
+builder.Services.AddSingleton<LibraryManagement.API.BackgroundServices.INotificationQueue, LibraryManagement.API.BackgroundServices.NotificationQueue>();
+builder.Services.AddSingleton<BLL.IHangDoiThongBao, LibraryManagement.API.BackgroundServices.HangDoiThongBaoAdapter>();
+builder.Services.AddScoped<LibraryManagement.API.Services.IEmailService, LibraryManagement.API.Services.EmailService>();
+builder.Services.AddHostedService<LibraryManagement.API.BackgroundServices.NotificationWorkerService>();
+
 // ===================== CONTROLLERS + SWAGGER =====================
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(opt => opt.JsonSerializerOptions.PropertyNamingPolicy = null);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -178,6 +198,17 @@ app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Library Management API v1");
     c.RoutePrefix = "swagger"; // Swagger tại "/swagger" để không xung đột root
+});
+
+// Email đặt lại mật khẩu trỏ Frontend:BaseUrl + /reset-password (không có .html).
+app.Use(async (ctx, next) =>
+{
+    if (HttpMethods.IsGet(ctx.Request.Method)
+        && ctx.Request.Path.Equals("/reset-password", StringComparison.OrdinalIgnoreCase))
+    {
+        ctx.Request.Path = "/reset-password.html";
+    }
+    await next();
 });
 
 // Serve default files (index.html) from Frontend folder

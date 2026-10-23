@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tổng Quan - Thủ Thư</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/layout.css?v=4">
+    <link rel="stylesheet" href="../../css/components.css">
+</head>
+<body>
+
+<div class="app-wrapper">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fa-solid fa-book-open"></i> Thư Viện HYUTE</h2>
+        </div>
+        <nav class="sidebar-nav">
+            <ul id="librarianMenu"></ul>
+        </nav>
+        <div class="sidebar-footer" style="padding: 15px;">
+            <button id="logoutBtn" class="btn btn-secondary btn-block"><i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng Xuất</button>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-header">
+            <div class="header-search">
+                <i class="fa-solid fa-magnifying-glass text-muted"></i>
+                <input type="text" placeholder="Tìm kiếm nhanh...">
+            </div>
+            <div class="header-user">
+                <span style="font-weight: 500;" id="userNameDisplay">Thủ Thư</span>
+                <div class="avatar">T</div>
+            </div>
+        </header>
+
+        <div class="content-container">
+            <h1 style="margin-bottom: 24px; color: var(--text-primary);">Tổng Quan</h1>
+
+            <!-- Thống kê -->
+            <div class="stats-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:24px;">
+                <div class="stat-card" style="background:#fff;padding:20px;border-radius:8px;border:1px solid var(--border-color);">
+                    <div style="display:flex;align-items:center;gap:12px;">
+                        <div style="width:48px;height:48px;background:#eef2ff;border-radius:10px;display:flex;align-items:center;justify-content:center;">
+                            <i class="fa-solid fa-book" style="color:#4f46e5;font-size:1.2rem;"></i>
+                        </div>
+                        <div>
+                            <p style="font-size:0.85rem;color:var(--text-muted);margin:0;">Tổng Sách</p>
+                            <p style="font-size:1.5rem;font-weight:700;margin:0;" id="statTongSach">—</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-card" style="background:#fff;padding:20px;border-radius:8px;border:1px solid var(--border-color);">
+                    <div style="display:flex;align-items:center;gap:12px;">
+                        <div style="width:48px;height:48px;background:#fef3c7;border-radius:10px;display:flex;align-items:center;justify-content:center;">
+                            <i class="fa-solid fa-users" style="color:#d97706;font-size:1.2rem;"></i>
+                        </div>
+                        <div>
+                            <p style="font-size:0.85rem;color:var(--text-muted);margin:0;">Độc Giả</p>
+                            <p style="font-size:1.5rem;font-weight:700;margin:0;" id="statDocGia">—</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-card" style="background:#fff;padding:20px;border-radius:8px;border:1px solid var(--border-color);">
+                    <div style="display:flex;align-items:center;gap:12px;">
+                        <div style="width:48px;height:48px;background:#fee2e2;border-radius:10px;display:flex;align-items:center;justify-content:center;">
+                            <i class="fa-solid fa-clock" style="color:#dc2626;font-size:1.2rem;"></i>
+                        </div>
+                        <div>
+                            <p style="font-size:0.85rem;color:var(--text-muted);margin:0;">Quá Hạn</p>
+                            <p style="font-size:1.5rem;font-weight:700;margin:0;" id="statQuaHan">—</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Giao dịch gần đây -->
+            <div class="card">
+                <h3 style="margin-top:0;">Giao Dịch Gần Đây</h3>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Mã GD</th>
+                                <th>Độc Giả</th>
+                                <th>Ngày Mượn</th>
+                                <th>Trạng Thái</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tblGiaoDichGanDay">
+                            <tr><td colspan="4" class="text-center">Đang tải...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script src="../../js/api.js"></script>
+<script src="../../js/auth.js"></script>
+<script src="../../js/sidebar.js"></script>
+<script src="../../js/dashboard.js"></script>
+</body>
+</html>
+
+</arg_value>

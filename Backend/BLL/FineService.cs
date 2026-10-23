@@ -39,13 +39,12 @@ namespace BLL
         public async Task<ResponseModel> thutienphattrehan(PaymentModel model)
         {
             if (model.sotien <= 0) return ResponseModel.Fail("Số tiền không hợp lệ.");
-            model.pay_id       = Guid.NewGuid();
             model.payment_date = DateTime.Now;
             try
             {
-                await _fineRepo.thutienphattrehan(model);
+                var payIdThuc = await _fineRepo.thutienphattrehan(model);
                 _logger.LogInformation("Thu tiền phạt fine_id={FineId}, số tiền={SoTien}", model.fine_id, model.sotien);
-                return ResponseModel.Ok(model.pay_id, "Thu tiền phạt thành công.");
+                return ResponseModel.Ok(payIdThuc, "Thu tiền phạt thành công.");
             }
             catch (Exception ex)
             {

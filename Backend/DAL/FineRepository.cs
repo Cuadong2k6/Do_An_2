@@ -28,15 +28,19 @@ namespace DAL
             return await _db.QueryFirstOrDefaultAsync<FineModel>("sp_fine_get_by_loan", new { loan_id = loanId });
         }
 
-        public async Task thutienphattrehan(PaymentModel model)
+        public async Task<Guid> thutienphattrehan(PaymentModel model)
         {
-            await _db.ExecuteAsync("sp_fine_payment", new
-            {
-                fine_id     = model.fine_id,
-                sotien      = model.sotien,
-                phuongthuc  = model.phuongthuc,
-                ghichu      = model.ghichu
-            });
+            using var conn = _db.GetConnection();
+
+            var p = new DynamicParameters();
+            p.Add("@fine_id", model.fine_id, DbType.Guid);
+            p.Add("@sotien", model.sotien, DbType.Decimal);
+            p.Add("@phuongthuc", model.phuongthuc, DbType.String);
+            p.Add("@ghichu", model.ghichu, DbType.String);
+            p.Add("@pay_id", dbType: DbType.Guid, direction: ParameterDirection.Output);
+
+            await conn.ExecuteAsync("sp_fine_payment", p, commandType: CommandType.StoredProcedure);
+            return p.Get<Guid>("@pay_id");
         }
     }
 }

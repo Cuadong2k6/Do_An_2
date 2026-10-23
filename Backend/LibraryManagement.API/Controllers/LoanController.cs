@@ -30,6 +30,7 @@ namespace LibraryManagement.API.Controllers
         /// <summary>Bạn đọc tự mượn sách từ giỏ hàng</summary>
         [HttpPost("mine")]
         [Authorize(Roles = "BanDoc")]
+        [ChanPendingPayment]
         public async Task<IActionResult> taophieumuongio([FromBody] GioHangMuonDto req)
         {
             // reader_id lấy từ token, KHÔNG nhận từ body — tránh bạn đọc mượn hộ người khác
@@ -66,6 +67,7 @@ namespace LibraryManagement.API.Controllers
         [HttpGet("history/{readerId}")]
         [Authorize]
         [ChinhMinhHoacNhanVien("readerId")]
+        [ChanPendingPayment]
         public async Task<IActionResult> lichsumuon(Guid readerId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             var result = await _loanService.lichsumuon(readerId, page, pageSize);

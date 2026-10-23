@@ -47,15 +47,15 @@
         <div class="card login-card">
             <div class="login-header">
                 <h1>Thư Viện Thông Minh</h1>
-                <p>Đăng nhập để tiếp tục</p>
+                <p>Thủ thư/Admin dùng tài khoản mật khẩu; bạn đọc dùng Google</p>
             </div>
             
             <div class="error-message" id="loginError"></div>
 
             <form id="loginForm">
                 <div class="form-group">
-                    <label class="form-label" for="tendangnhap">Tài khoản hoặc Email</label>
-                    <input type="text" id="tendangnhap" class="form-control" placeholder="admin hoặc bandoc1@gmail.com" autocomplete="username" required>
+                    <label class="form-label" for="tendangnhap">Tài khoản nhân viên</label>
+                    <input type="text" id="tendangnhap" class="form-control" placeholder="Tên tài khoản Admin/Thủ thư" autocomplete="username" required>
                 </div>
 
                 <div class="form-group mb-2">
@@ -68,6 +68,16 @@
                 </button>
             </form>
 
+            <div class="text-center mt-2">
+                <p>Hoặc bạn đọc đăng nhập bằng Google</p>
+                <div id="googleSignInButton" style="display:flex;justify-content:center"></div>
+            </div>
+
+            <div class="text-center mt-2" style="font-size: 0.9rem;">
+                <a href="/pages/forgot-password.html">Quên mật khẩu?</a>
+                <span style="color: var(--border-color); margin: 0 6px;">|</span>
+            </div>
+
             <div class="text-center mt-2" style="font-size: 0.85rem; color: var(--text-muted); display: none;">
                 <p id="demoCredentialsAdmin">Admin: admin / 123456</p>
                 <p id="demoCredentialsReader">Bạn đọc: bandoc1@gmail.com / 123456</p>
@@ -76,7 +86,8 @@
     </div>
 
     <!-- Scripts -->
-    <script src="js/api.js?v=3"></script>
+    <script src="js/api.js?v=5"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="js/auth.js?v=4"></script>
 </body>
 </html>

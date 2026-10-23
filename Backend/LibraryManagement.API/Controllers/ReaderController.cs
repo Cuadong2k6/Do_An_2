@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Model.Reader;
 using Model.Shared;
+using System.Security.Claims;
 
 namespace LibraryManagement.API.Controllers
 {
@@ -41,6 +42,17 @@ namespace LibraryManagement.API.Controllers
             return result.success ? Ok(result) : NotFound(result);
         }
 
+        [HttpPut("me/profile")]
+        [Authorize(Roles = "BanDoc")]
+        public async Task<IActionResult> CapNhatHoSo([FromBody] CapNhatHoSoReaderDto req)
+        {
+            if (!Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var readerId))
+                return Unauthorized(ResponseModel.Fail("Token không hợp lệ."));
+
+            var result = await _readerService.CapNhatHoSoAsync(readerId, req.hoten, req.sodienthoai, req.diachi);
+            return result.success ? Ok(result) : BadRequest(result);
+        }
+
         /// <summary>Đăng ký thẻ bạn đọc mới</summary>
         [HttpPost("register")]
         [Authorize(Roles = "Admin,ThuThu")]
@@ -73,6 +85,7 @@ namespace LibraryManagement.API.Controllers
         [HttpGet("{id:guid}/card")]
         [Authorize]
         [ChinhMinhHoacNhanVien("id")]
+        [ChanPendingPayment]
         public async Task<IActionResult> xuatthebandoc(Guid id)
         {
             var pdf = await _readerService.xuatthebandoc(id);
@@ -93,5 +106,12 @@ namespace LibraryManagement.API.Controllers
     public class RenewCardDto
     {
         public DateTime ngayhethan { get; set; }
+    }
+
+    public sealed class CapNhatHoSoReaderDto
+    {
+        public string hoten { get; set; } = "";
+        public string? sodienthoai { get; set; }
+        public string? diachi { get; set; }
     }
 }

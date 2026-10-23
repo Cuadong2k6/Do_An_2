@@ -1,4 +1,5 @@
 using BLL;
+using DAL;
 using DAL.Helper;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
@@ -36,6 +37,15 @@ namespace LibraryManagement.Tests
               .ReturnsAsync(reader);
 
             return new AuthService(db.Object, CauHinhJwt(), NullLogger<AuthService>.Instance);
+        }
+
+        private static AuthService TaoGoogleService(GoogleReaderLoginResult? reader)
+        {
+            var db = new Mock<IDatabaseHelper>();
+            var repo = new Mock<IGoogleReaderRepository>();
+            repo.Setup(x => x.DangNhapBangGoogleAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>()))
+                .ReturnsAsync(reader);
+            return new AuthService(db.Object, CauHinhJwt(), NullLogger<AuthService>.Instance, null, null, repo.Object);
         }
 
         private static UserModel NguoiDung(string hashMatKhau) => new()
@@ -202,19 +212,18 @@ namespace LibraryManagement.Tests
             json.Should().NotContain("matkhau");
         }
 
-        // ---------- Bạn đọc (khóa đăng nhập là email) ----------
+        // ---------- Bạn đọc chỉ đăng nhập qua Google ----------
 
         [Fact]
-        public async Task Dangnhap_bandoc_matkhau_dung_thi_thanh_cong()
+        public async Task Dangnhap_bandoc_matkhau_bi_tu_choi()
         {
             // Không có trong bảng users → rơi xuống tra bảng readers theo email
             var svc = TaoService(user: null, BanDoc(TestHelper.Bcrypt("123456")));
 
             var res = await svc.dangnhap("bandoc1@gmail.com", "123456");
 
-            res.success.Should().BeTrue();
-            (ThuocTinh(res, "role") as string).Should().Be("BanDoc");
-            (ThuocTinh(res, "token") as string).Should().NotBeNullOrWhiteSpace();
+            res.success.Should().BeFalse();
+            res.message.Should().Be("Bạn đọc vui lòng đăng nhập bằng Google.");
         }
 
         [Fact]
@@ -225,7 +234,7 @@ namespace LibraryManagement.Tests
             var res = await svc.dangnhap("bandoc1@gmail.com", "sai-mat-khau");
 
             res.success.Should().BeFalse();
-            res.message.Should().Be("Sai tài khoản hoặc mật khẩu.");
+            res.message.Should().Be("Bạn đọc vui lòng đăng nhập bằng Google.");
         }
 
         [Fact]
@@ -236,30 +245,71 @@ namespace LibraryManagement.Tests
             var res = await svc.dangnhap("bandoc1@gmail.com", "123456");
 
             res.success.Should().BeFalse();
-            res.message.Should().Be("Tài khoản đã bị khoá hoặc hết hạn.");
+            res.message.Should().Be("Bạn đọc vui lòng đăng nhập bằng Google.");
         }
 
         [Fact]
         public async Task Dangnhap_bandoc_bi_khoa_mkhau_sai_khong_lo_trang_thai()
         {
-            // Sai mật khẩu thì phải trả thông báo chung, không tiết lộ tài khoản đang bị khoá
+            // Reader password login tắt; không tiết lộ trạng thái reader.
             var svc = TaoService(user: null, BanDoc(TestHelper.Bcrypt("123456"), trangthai: 1));
 
             var res = await svc.dangnhap("bandoc1@gmail.com", "sai-mat-khau");
 
-            res.message.Should().Be("Sai tài khoản hoặc mật khẩu.");
+            res.message.Should().Be("Bạn đọc vui lòng đăng nhập bằng Google.");
         }
 
         [Fact]
         public async Task Dangnhap_ten_tai_khoan_khong_co_at_thi_tra_ban_doc()
         {
-            // "thuthu1" không có @ vẫn được gửi lên; kết quả là "sai tài khoản" chứ không phải lỗi 400
+            // Tài khoản không thuộc users được từ chối bằng thông báo chung.
             var svc = TaoService(user: null, reader: null);
 
             var res = await svc.dangnhap("thuthu1", "123456");
 
             res.success.Should().BeFalse();
             res.message.Should().Be("Sai tài khoản hoặc mật khẩu.");
+        }
+
+        [Fact]
+        public async Task DangNhapGoogle_PendingPaymentDuocCapJwtCoOnboardingClaim()
+        {
+            var svc = TaoGoogleService(new GoogleReaderLoginResult
+            {
+                reader_id = TestHelper.READER_ID,
+                hoten = "Độc giả",
+                trangthai = 0,
+                trangthai_onboarding = 1,
+                is_new = true,
+                status_code = 0
+            });
+
+            var result = await svc.DangNhapGoogleAsync("sub", "reader@example.com", "Độc giả");
+
+            result.success.Should().BeTrue();
+            var token = (ThuocTinh(result, "token") as string)!;
+            var jwt = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler().ReadJwtToken(token);
+            jwt.Claims.Should().Contain(c => c.Type == "onboarding_status" && c.Value == "1");
+        }
+
+        [Fact]
+        public async Task DangNhapGoogle_TuChoiReaderBiKhoa()
+        {
+            var svc = TaoGoogleService(new GoogleReaderLoginResult { status_code = 0, trangthai = 2 });
+
+            var result = await svc.DangNhapGoogleAsync("sub", "reader@example.com", "Độc giả");
+
+            result.success.Should().BeFalse();
+        }
+
+        [Fact]
+        public async Task DangNhapGoogle_TuChoiEmailConflictKhongCapJwt()
+        {
+            var svc = TaoGoogleService(new GoogleReaderLoginResult { status_code = 50301 });
+
+            var result = await svc.DangNhapGoogleAsync("sub", "staff@example.com", "Staff");
+
+            result.success.Should().BeFalse();
         }
     }
 }

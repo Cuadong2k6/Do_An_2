@@ -42,5 +42,14 @@ namespace LibraryManagement.API.Controllers
             var result = await _reportService.baocaoquahan();
             return Ok(result);
         }
+
+        /// <summary>Thống kê dashboard</summary>
+        [HttpGet("dashboard-stats")]
+        [Authorize(Roles = "Admin,ThuThu")]
+        public async Task<IActionResult> laythongkedashboard()
+        {
+            var result = await _reportService.laythongkedashboard();
+            return Ok(result);
+        }
     }
 }
