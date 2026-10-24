@@ -114,8 +114,11 @@ builder.Services.AddTransient<ReportRepository>();
 builder.Services.AddTransient<NhatkyRepository>();
 builder.Services.AddTransient<IPasswordResetRepository, PasswordResetRepository>();
 builder.Services.AddTransient<DAL.IOtpRepository, DAL.OtpRepository>();
+builder.Services.AddTransient<StaffRepository>();
+builder.Services.AddTransient<IStaffRepository>(sp => sp.GetRequiredService<StaffRepository>());
 
 // ===================== DI — BLL (Services) =====================
+builder.Services.AddTransient<StaffService>();
 builder.Services.AddTransient<BLL.IOtpService, BLL.OtpService>();
 builder.Services.AddTransient<BookService>();
 builder.Services.AddTransient<ReaderService>();

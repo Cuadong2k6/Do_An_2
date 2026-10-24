@@ -68,6 +68,10 @@ namespace BLL
 
             if (user != null)
             {
+                // Staff bị khóa: không kiểm tra mật khẩu, không phát JWT
+                if (user.is_locked)
+                    return ResponseModel.Fail("Tài khoản nhân viên đã bị khóa. Vui lòng liên hệ quản trị viên.");
+
                 if (!kiemtramatkhau(matkhau, user.matkhau))
                     return ResponseModel.Fail("Sai tài khoản hoặc mật khẩu.");
 

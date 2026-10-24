@@ -152,6 +152,45 @@ namespace BLL
             }
         }
 
+        /// <summary>Khoá bạn đọc (trangthai = 2). Chỉ Admin/ThuThu được gọi từ controller.</summary>
+        public async Task<ResponseModel> KhoaBandocAsync(Guid readerId)
+        {
+            return await ThayDoiTrangThaiBandocAsync(readerId, trangThaiMoi: 2, "Khoá");
+        }
+
+        /// <summary>Mở khoá bạn đọc (trangthai = 0). Chỉ Admin/ThuThu được gọi từ controller.</summary>
+        public async Task<ResponseModel> MoKhoaBandocAsync(Guid readerId)
+        {
+            return await ThayDoiTrangThaiBandocAsync(readerId, trangThaiMoi: 0, "Mở khoá");
+        }
+
+        /// <summary>Logic chung: đọc thông tin hiện tại → chỉ đổi trangthai → ghi lại qua SP an toàn.</summary>
+        private async Task<ResponseModel> ThayDoiTrangThaiBandocAsync(Guid readerId, int trangThaiMoi, string hanhDong)
+        {
+            try
+            {
+                var reader = await _readerRepo.laychitietchibandoc(readerId);
+                if (reader == null)
+                    return ResponseModel.Fail("Không tìm thấy độc giả.");
+
+                // Không làm gì nếu đã ở đúng trạng thái mong muốn
+                if (reader.trangthai == trangThaiMoi)
+                    return ResponseModel.Ok(null, $"Độc giả đã ở trạng thái {(trangThaiMoi == 2 ? "bị khoá" : "hoạt động")}.");
+
+                // Chỉ thay đổi trangthai, giữ nguyên mọi trường khác
+                reader.trangthai = trangThaiMoi;
+                await _readerRepo.KhoaMoKhoaBandocAsync(reader);
+
+                _logger.LogInformation("{HanhDong} độc giả: {ReaderId}", hanhDong, readerId);
+                return ResponseModel.Ok(null, $"{hanhDong} độc giả thành công.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi {HanhDong} độc giả {ReaderId}", hanhDong, readerId);
+                return ResponseModel.Fail(ex.Message);
+            }
+        }
+
         /// <summary>Xuất thẻ bạn đọc ra file PDF. Trả null nếu không tìm thấy.</summary>
         public async Task<byte[]?> xuatthebandoc(Guid readerId)
         {

@@ -11,7 +11,7 @@ const MENU_ADMIN = [
     { href: 'books.html',        icon: 'fa-book',               ten: 'Quản Lý Sách' },
     { href: 'copies.html',       icon: 'fa-copy',               ten: 'Bản Sao Sách' },
     { href: 'shelves.html',      icon: 'fa-warehouse',          ten: 'Kệ Sách' },
-    { href: 'readers.html',      icon: 'fa-users',              ten: 'Độc Giả' },
+    { href: 'accounts.html',     icon: 'fa-users',              ten: 'Tài Khoản' },
     { href: 'loans.html',        icon: 'fa-hand-holding-hand', ten: 'Mượn - Trả' },
     { href: 'reservations.html', icon: 'fa-calendar-check',     ten: 'Đặt Chỗ' },
     { href: 'fines.html',        icon: 'fa-money-bill-wave',    ten: 'Tiền Phạt' },

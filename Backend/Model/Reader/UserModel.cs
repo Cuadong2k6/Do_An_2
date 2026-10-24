@@ -21,5 +21,11 @@ namespace Model.Reader
         public string role { get; set; } = string.Empty;
         public string token { get; set; } = string.Empty;
         public string image_url { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Trạng thái khóa tài khoản staff (0 = hoạt động, 1 = bị khóa).
+        /// Trả về từ sp_user_login để BLL chặn đăng nhập; không expose ra client qua JWT payload.
+        /// </summary>
+        public bool is_locked { get; set; }
     }
 }

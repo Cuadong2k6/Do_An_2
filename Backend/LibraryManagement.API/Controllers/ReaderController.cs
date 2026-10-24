@@ -101,6 +101,24 @@ namespace LibraryManagement.API.Controllers
             var result = await _readerService.xoadocgia(id);
             return result.success ? Ok(result) : BadRequest(result);
         }
+
+        /// <summary>Khoá bạn đọc (trangthai = 2). Chỉ Admin/ThuThu.</summary>
+        [HttpPut("{id:guid}/lock")]
+        [Authorize(Roles = "Admin,ThuThu")]
+        public async Task<IActionResult> KhoaBandoc(Guid id)
+        {
+            var result = await _readerService.KhoaBandocAsync(id);
+            return result.success ? Ok(result) : BadRequest(result);
+        }
+
+        /// <summary>Mở khoá bạn đọc (trangthai = 0). Chỉ Admin/ThuThu.</summary>
+        [HttpPut("{id:guid}/unlock")]
+        [Authorize(Roles = "Admin,ThuThu")]
+        public async Task<IActionResult> MoKhoaBandoc(Guid id)
+        {
+            var result = await _readerService.MoKhoaBandocAsync(id);
+            return result.success ? Ok(result) : BadRequest(result);
+        }
     }
 
     public class RenewCardDto

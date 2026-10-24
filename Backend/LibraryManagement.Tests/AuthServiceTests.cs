@@ -311,5 +311,30 @@ namespace LibraryManagement.Tests
 
             result.success.Should().BeFalse();
         }
+
+        // ---------- Nhân viên bị khóa (is_locked) ----------
+
+        [Fact]
+        public async Task Dangnhap_staff_bi_khoa_thi_that_bai_va_khong_cap_token()
+        {
+            // Regression test: staff có is_locked=true phải bị từ chối đăng nhập,
+            // không kiểm tra mật khẩu, không phát JWT.
+            var userBiKhoa = new UserModel
+            {
+                user_id   = TestHelper.USER_ID,
+                taikhoan  = "thuthu1",
+                hoten     = "Thủ Thư Bị Khóa",
+                role      = "ThuThu",
+                matkhau   = TestHelper.Bcrypt("123456"),
+                is_locked = true,
+            };
+            var svc = TaoService(userBiKhoa);
+
+            var res = await svc.dangnhap("thuthu1", "123456");
+
+            res.success.Should().BeFalse();
+            res.message.Should().Contain("bị khóa");
+            res.DuLieu().Should().BeNull("không được cấp token khi tài khoản bị khóa");
+        }
     }
 }

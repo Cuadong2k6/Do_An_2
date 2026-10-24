@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Tài Khoản - Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/layout.css?v=4">
+    <link rel="stylesheet" href="../../css/components.css">
+</head>
+<body>
+<div class="app-wrapper">
+    <aside class="sidebar">
+        <div class="sidebar-header"><h2><i class="fa-solid fa-book-open"></i> Thư Viện HYUTE</h2></div>
+        <nav class="sidebar-nav"><ul id="adminMenu"></ul></nav>
+        <div class="sidebar-footer" style="padding:15px"><button id="logoutBtn" class="btn btn-secondary btn-block"><i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng Xuất</button></div>
+    </aside>
+    <main class="main-content">
+        <header class="top-header">
+            <div class="header-search">
+                <i class="fa-solid fa-magnifying-glass text-muted"></i>
+                <input id="accountSearch" placeholder="Tìm theo tên, email..." oninput="TaiTaiKhoan()">
+                <select id="accountType" onchange="TaiTaiKhoan()" style="border:none;background:transparent">
+                    <option value="reader">Độc giả</option>
+                    <option value="staff">Thủ thư</option>
+                </select>
+            </div>
+            <div class="header-user"><span style="font-weight:500" id="userNameDisplay">Admin User</span><div class="avatar">A</div></div>
+        </header>
+        <div class="content-container table-page">
+            <div class="d-flex justify-between align-center" style="margin-bottom:8px">
+                <h1 style="color:var(--primary-color)">Quản Lý Tài Khoản</h1>
+                <!-- Nút thêm chỉ hiện khi đang xem tab Thủ thư -->
+                <button class="btn btn-primary" id="btnThemStaff" onclick="MoFormStaff()" style="display:none"><i class="fa-solid fa-plus"></i> Thêm thủ thư</button>
+            </div>
+            <div class="card">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead><tr><th>Họ Tên</th><th>Email</th><th>Tài khoản / Số thẻ</th><th>Trạng Thái</th><th>Thao Tác</th></tr></thead>
+                        <tbody id="accountTableBody"><tr><td colspan="5" style="text-align:center">Đang tải...</td></tr></tbody>
+                    </table>
+                </div>
+                <div class="d-flex justify-between align-center mt-2 pt-2" style="border-top:1px solid var(--border-color)">
+                    <span id="accountPageInfo" class="text-muted" style="font-size:.85rem"></span>
+                    <div id="accountPagination" style="display:flex;gap:5px"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Modal ĐỘC GIẢ: Xem, sửa thông tin và Khoá/Mở khoá -->
+<div id="readerModal" style="display:none;position:fixed;z-index:1000;inset:0;background:rgba(0,0,0,.5);overflow-y:auto;padding:20px 10px">
+    <div style="background:white;margin:2vh auto;padding:20px 25px;border-radius:8px;width:100%;max-width:560px;box-sizing:border-box">
+        <h2 id="readerModalTitle">Thông Tin Độc Giả</h2>
+        <form id="readerForm">
+            <!-- Readonly / Hiển thị -->
+            <label>Email (chỉ đọc)
+                <input class="form-control" id="readerEmail" readonly style="background:#f0f0f0">
+            </label>
+            <label>Số thẻ (chỉ đọc)
+                <input class="form-control" id="readerSoThe" readonly style="background:#f0f0f0">
+            </label>
+            <label>Ngày cấp (chỉ đọc)
+                <input class="form-control" id="readerNgayCap" readonly style="background:#f0f0f0">
+            </label>
+            <label>Trạng thái (chỉ đọc)
+                <input class="form-control" id="readerTrangThai" readonly style="background:#f0f0f0">
+            </label>
+            <label>Số mũ ghìn (chỉ đọc)
+                <input class="form-control" id="readerSoMuGhin" readonly style="background:#f0f0f0">
+            </label>
+            <!-- Editable -->
+            <label>Họ tên <span style="color:red">*</span>
+                <input class="form-control" id="readerHoTen" required maxlength="200">
+            </label>
+            <label>Số điện thoại
+                <input class="form-control" id="readerSoDienThoai" maxlength="20">
+            </label>
+            <label>Địa chỉ
+                <textarea class="form-control" id="readerDiaChi" rows="2" maxlength="500"></textarea>
+            </label>
+            <label>Ngày hết hạn
+                <input class="form-control" id="readerNgayHetHan" type="date">
+            </label>
+            <p class="text-muted" style="font-size:.85rem;margin-top:8px">Độc giả tự đăng ký qua Google OAuth hoặc Gmail OTP. Admin không tạo tài khoản độc giả, không đổi mật khẩu.</p>
+            <div class="d-flex justify-between" style="margin-top:16px">
+                <button type="button" class="btn btn-secondary" onclick="DongFormReader()">Đóng</button>
+                <div style="display:flex;gap:8px">
+                    <button type="button" class="btn" id="btnKhoaMoReader" onclick="KhoaMoReader()"></button>
+                    <button class="btn btn-primary" type="submit">Lưu thay đổi</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal THỦ THƯ: Tạo mới / Chỉnh sửa -->
+<div id="staffModal" style="display:none;position:fixed;z-index:1000;inset:0;background:rgba(0,0,0,.5);overflow-y:auto;padding:20px 10px">
+    <div style="background:white;margin:2vh auto;padding:20px 25px;border-radius:8px;width:100%;max-width:520px;box-sizing:border-box">
+        <h2 id="staffModalTitle">Thêm thủ thư</h2>
+        <form id="staffForm">
+            <input type="hidden" id="staffId">
+            <label>Họ tên <span style="color:red">*</span>
+                <input class="form-control" id="staffHoTen" required maxlength="200">
+            </label>
+            <label>Email <span style="color:red">*</span>
+                <input class="form-control" id="staffEmail" type="email" required maxlength="200">
+            </label>
+            <label>Số điện thoại
+                <input class="form-control" id="staffSdt" maxlength="20">
+            </label>
+            <label>Tên đăng nhập <span style="color:red">*</span>
+                <input class="form-control" id="staffTenDangNhap" required maxlength="100">
+            </label>
+            <label id="lblStaffMatKhau">Mật khẩu <span style="color:red">*</span>
+                <input class="form-control" id="staffMatKhau" type="password" minlength="6" autocomplete="new-password">
+            </label>
+            <p class="text-muted" style="font-size:.85rem" id="staffPwHint"></p>
+            <div class="d-flex justify-between" style="margin-top:16px">
+                <button type="button" class="btn btn-secondary" onclick="DongFormStaff()">Huỷ</button>
+                <button class="btn btn-primary" type="submit">Lưu</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="../../js/api.js"></script>
+<script src="../../js/auth.js?v=3"></script>
+<script src="../../js/sidebar.js"></script>
+<script src="../../js/page-guard.js"></script>
+<script src="../../js/accounts.js?v=2"></script>
+</body>
+</html>

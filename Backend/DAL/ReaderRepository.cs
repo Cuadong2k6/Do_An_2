@@ -103,6 +103,23 @@ namespace DAL
             await _db.ExecuteAsync("sp_reader_delete", new { reader_id = readerId });
         }
 
+        /// <summary>Khoá hoặc mở khoá bạn đọc (chỉ cập nhật trangthai)</summary>
+        public async Task KhoaMoKhoaBandocAsync(ReaderModel model)
+        {
+            // Tái sử dụng sp_reader_update một cách an toàn:
+            // Truyền nguyên vẹn các trường hiện tại, chỉ thay đổi trangthai.
+            await _db.ExecuteAsync("sp_reader_update", new
+            {
+                reader_id   = model.reader_id,
+                hoten       = model.hoten,
+                sodienthoai = model.sodienthoai,
+                diachi      = model.diachi,
+                trangthai   = model.trangthai,
+                ngayhethan  = model.ngayhethan,
+                somughin    = model.somughin
+            });
+        }
+
         /// <summary>Đăng nhập bạn đọc qua Google OAuth</summary>
         public async Task<GoogleReaderLoginResult?> DangNhapBangGoogleAsync(
             string googleSub, string email, string hoten, string? soThe)
