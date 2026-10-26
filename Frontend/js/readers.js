@@ -11,6 +11,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('readerTableBody')) {
         TaiDocGia();
+        TaiDanhSachKichHoatChoDuyet();
 
         const readerForm = document.getElementById('readerForm');
         if (readerForm) {
@@ -99,6 +100,64 @@ async function TaiDocGia() {
     } catch (err) {
         tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:red">Lỗi tải dữ liệu: ${EscapeHtml(err.message)}</td></tr>`;
         RenderPhanTrang('readerPagination', 'readerPageInfo', _trangDocGia, 0, HANG_DOC_GIA, 'DiTrangDocGia');
+    }
+}
+
+async function TaiDanhSachKichHoatChoDuyet() {
+    const tbody = document.getElementById('activationPendingTableBody');
+    if (!tbody) return;
+
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center">Đang tải danh sách yêu cầu...</td></tr>';
+    try {
+        const res = await window.api.get('/Reader/activations/pending');
+        if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+            tbody.innerHTML = '';
+            res.data.forEach(r => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td style="font-weight:500">${EscapeHtml(r.hoten)}</td>
+                        <td><span class="badge badge-secondary">${EscapeHtml(r.so_the) || '—'}</span></td>
+                        <td class="text-muted">${EscapeHtml(r.email)}</td>
+                        <td><span class="badge badge-warning">Chờ duyệt</span></td>
+                        <td>
+                            <button class="btn btn-primary" style="padding:5px 10px;font-size:0.8rem"
+                                onclick="DuyetYeuCauKichHoat('${EscapeHtml(r.reader_id)}', \`${EscapeHtml(r.hoten).replace(/`/g, '&#96;')}\`)">Duyệt</button>
+                            <button class="btn btn-danger" style="padding:5px 10px;font-size:0.8rem"
+                                onclick="TuChoiYeuCauKichHoat('${EscapeHtml(r.reader_id)}', \`${EscapeHtml(r.hoten).replace(/`/g, '&#96;')}\`)">Từ chối</button>
+                        </td>
+                    </tr>`;
+            });
+        } else {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center">Không có yêu cầu kích hoạt chờ duyệt</td></tr>';
+        }
+    } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:red">Lỗi tải danh sách: ${EscapeHtml(err.message)}</td></tr>`;
+    }
+}
+
+async function DuyetYeuCauKichHoat(id, hoten) {
+    if (!confirm(`Duyệt kích hoạt cho độc giả "${hoten}"?`)) return;
+
+    try {
+        const res = await window.api.put(`/Reader/activations/${id}/approve`, {});
+        alert(res.message || 'Đã duyệt yêu cầu kích hoạt.');
+        await TaiDanhSachKichHoatChoDuyet();
+        await TaiDocGia();
+    } catch (err) {
+        alert(err.message || 'Không duyệt được yêu cầu kích hoạt.');
+    }
+}
+
+async function TuChoiYeuCauKichHoat(id, hoten) {
+    if (!confirm(`Từ chối yêu cầu kích hoạt của "${hoten}"? Tài khoản sẽ bị khoá.`)) return;
+
+    try {
+        const res = await window.api.put(`/Reader/activations/${id}/reject`, {});
+        alert(res.message || 'Đã từ chối yêu cầu kích hoạt.');
+        await TaiDanhSachKichHoatChoDuyet();
+        await TaiDocGia();
+    } catch (err) {
+        alert(err.message || 'Không từ chối được yêu cầu kích hoạt.');
     }
 }
 

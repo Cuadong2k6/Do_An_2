@@ -63,6 +63,18 @@
                 </form>
             </div>
 
+            <div class="card mt-2" id="activationCard" style="display:none;">
+                <div class="d-flex justify-between align-center" style="gap:10px;flex-wrap:wrap;">
+                    <div>
+                        <h3 style="margin-bottom:6px;">Kích hoạt tài khoản</h3>
+                        <p id="activationStatusText" class="text-muted" style="margin:0;">Đang kiểm tra trạng thái...</p>
+                    </div>
+                    <button id="btnActivationRequest" type="button" class="btn btn-primary" style="display:none;">
+                        <i class="fa-solid fa-paper-plane"></i> Gửi yêu cầu kích hoạt
+                    </button>
+                </div>
+            </div>
+
             <div class="card mt-2">
                 <h3>Kết Quả Tìm Kiếm</h3>
                 <div id="ketQuaTimKiem" class="mt-1">
@@ -102,7 +114,7 @@
 
 <script src="../../js/api.js?v=4"></script>
 <script src="../../js/auth.js?v=4"></script>
-<script src="../../js/search.js?v=6"></script>
+<script src="../../js/search.js?v=7"></script>
 <script>
     // Kiểm tra quyền truy cập (cho reader và admin)
     YeuCauXacThuc(['reader', 'bandoc', 'admin']);

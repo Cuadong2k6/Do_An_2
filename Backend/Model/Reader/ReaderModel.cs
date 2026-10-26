@@ -13,8 +13,8 @@ namespace Model.Reader {
         /// <summary>Hash mật khẩu — chỉ dùng nội bộ để xác thực, KHÔNG serialize ra client.</summary>
         [JsonIgnore]
         public string matkhau { get; set; } = string.Empty;
-        public string sodienthoai { get; set; } = string.Empty;
-        public string diachi { get; set; } = string.Empty;
+        public string? sodienthoai { get; set; }
+        public string? diachi { get; set; }
         public string so_the { get; set; } = string.Empty;
         public DateTime? ngaycap { get; set; }
         public DateTime? ngayhethan { get; set; }

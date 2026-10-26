@@ -51,7 +51,7 @@ namespace BLL
             try
             {
                 // Repository tự sinh ID từ SQL output, trả về Guid
-                var userId = await _repo.TaoThuThuAsync(req.hoten, req.email, req.taikhoan, hashMatKhau, req.image_url);
+                var userId = await _repo.TaoThuThuAsync(req.hoten, req.email, req.taikhoan, hashMatKhau, req.sodienthoai, req.image_url);
                 _logger.LogInformation("Đã tạo thủ thư {UserId}, tài khoản {TaiKhoan}", userId, req.taikhoan);
                 return ResponseModel.Ok(new { user_id = userId }, "Tạo thủ thư thành công.");
             }
@@ -84,6 +84,7 @@ namespace BLL
                     req.email ?? existing.email,
                     req.taikhoan ?? existing.taikhoan,
                     hashMatKhau,
+                    req.sodienthoai, // null = giữ nguyên, "" = xoá (xử lý trong SP)
                     req.image_url ?? existing.image_url
                 );
                 _logger.LogInformation("Đã cập nhật thủ thư {UserId}", userId);

@@ -47,8 +47,9 @@ namespace LibraryManagement.Tests
                     It.IsAny<string>(),
                     It.IsAny<string>(),
                     It.IsAny<string>(),
+                    It.IsAny<string?>(),
                     It.IsAny<string?>()))
-                .Callback<string, string, string, string, string?>((hoten, email, taikhoan, matkhauHash, imageUrl) =>
+                .Callback<string, string, string, string, string?, string?>((hoten, email, taikhoan, matkhauHash, sodienthoai, imageUrl) =>
                 {
                     capturedHash = matkhauHash;
                 })
@@ -83,7 +84,52 @@ namespace LibraryManagement.Tests
                 req.email,
                 req.taikhoan,
                 It.IsAny<string>(),
+                req.sodienthoai,
                 req.image_url), Times.Once);
+        }
+
+        [Fact]
+        public async Task CapNhatThuThu_ChuyenSoDienThoaiXuongRepository()
+        {
+            // Arrange
+            var mockRepo = new Mock<IStaffRepository>();
+            string? capturedSdt = null;
+
+            mockRepo.Setup(x => x.ChiTietThuThuAsync(THU_THU_ID))
+                .ReturnsAsync(new StaffDto
+                {
+                    user_id = THU_THU_ID,
+                    hoten = "Old Name",
+                    email = "old@example.com",
+                    taikhoan = "olduser",
+                    sodienthoai = "0900000000"
+                });
+
+            mockRepo.Setup(x => x.CapNhatThuThuAsync(
+                    THU_THU_ID,
+                    It.IsAny<string?>(),
+                    It.IsAny<string?>(),
+                    It.IsAny<string?>(),
+                    It.IsAny<string?>(),
+                    It.IsAny<string?>(),
+                    It.IsAny<string?>()))
+                .Callback<Guid, string?, string?, string?, string?, string?, string?>(
+                    (id, hoten, email, taikhoan, matkhauHash, sodienthoai, imageUrl) =>
+                    {
+                        capturedSdt = sodienthoai;
+                    })
+                .Returns(Task.CompletedTask);
+
+            var svc = TaoService(mockRepo.Object);
+            // Chuỗi rỗng = xoá số điện thoại, phải được chuyển nguyên xuống repository
+            var req = new CapNhatThuThuRequest { sodienthoai = string.Empty };
+
+            // Act
+            var result = await svc.CapNhatThuThuAsync(THU_THU_ID, req);
+
+            // Assert
+            result.success.Should().BeTrue();
+            capturedSdt.Should().BeEmpty("chuỗi rỗng phải được chuyển xuống repository để SP xoá số điện thoại");
         }
     }
 }

@@ -59,7 +59,7 @@ namespace DAL
         /// matkhauHash là BCrypt hash do C# tạo sẵn.
         /// Trả về user_id mới được tạo.
         /// </summary>
-        public async Task<Guid> TaoThuThuAsync(string hoten, string email, string taikhoan, string matkhauHash, string? imageUrl)
+        public async Task<Guid> TaoThuThuAsync(string hoten, string email, string taikhoan, string matkhauHash, string? sodienthoai, string? imageUrl)
         {
             using var conn = _db.GetConnection();
             conn.Open();
@@ -69,6 +69,7 @@ namespace DAL
             p.Add("@email", email, DbType.String);
             p.Add("@taikhoan", taikhoan, DbType.String);
             p.Add("@matkhau_hash", matkhauHash, DbType.String);
+            p.Add("@sodienthoai", sodienthoai, DbType.String);
             p.Add("@image_url", imageUrl, DbType.String);
             p.Add("@new_user_id", dbType: DbType.Guid, direction: ParameterDirection.Output);
 
@@ -80,7 +81,7 @@ namespace DAL
         /// Cập nhật thông tin ThuThu. Khớp sp_user_update_thuthu.
         /// matkhauHash = null → giữ nguyên mật khẩu cũ.
         /// </summary>
-        public async Task CapNhatThuThuAsync(Guid userId, string? hoten, string? email, string? taikhoan, string? matkhauHash, string? imageUrl)
+        public async Task CapNhatThuThuAsync(Guid userId, string? hoten, string? email, string? taikhoan, string? matkhauHash, string? sodienthoai, string? imageUrl)
         {
             using var conn = _db.GetConnection();
             conn.Open();
@@ -91,6 +92,7 @@ namespace DAL
             p.Add("@email", email, DbType.String);
             p.Add("@taikhoan", taikhoan, DbType.String);
             p.Add("@matkhau_hash", matkhauHash, DbType.String);
+            p.Add("@sodienthoai", sodienthoai, DbType.String);
             p.Add("@image_url", imageUrl, DbType.String);
 
             await conn.ExecuteAsync("sp_user_update_thuthu", p, commandType: CommandType.StoredProcedure);

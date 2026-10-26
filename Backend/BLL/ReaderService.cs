@@ -69,6 +69,67 @@ namespace BLL
             return ResponseModel.Ok(null, "Cập nhật hồ sơ thành công.");
         }
 
+        public async Task<ResponseModel> yeucaukichhoat(Guid readerId)
+        {
+            try
+            {
+                await _readerRepo.YeuCauKichHoatAsync(readerId);
+                _logger.LogInformation("Bạn đọc gửi yêu cầu kích hoạt: {ReaderId}", readerId);
+                return ResponseModel.Ok(null, "Đã gửi yêu cầu kích hoạt. Vui lòng chờ thư viện duyệt.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi gửi yêu cầu kích hoạt {ReaderId}", readerId);
+                return ResponseModel.Fail(ex.Message);
+            }
+        }
+
+        public async Task<ResponseModel> danhsachkichhoatchoduyet()
+        {
+            try
+            {
+                var items = await _readerRepo.LayDanhSachKichHoatChoDuyetAsync();
+                return ResponseModel.Ok(items);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi tải danh sách yêu cầu kích hoạt chờ duyệt");
+                return ResponseModel.Fail(ex.Message);
+            }
+        }
+
+        public async Task<ResponseModel> duyetkichhoat(Guid readerId, Guid staffId)
+        {
+            try
+            {
+                await _readerRepo.DuyetYeuCauKichHoatAsync(readerId, staffId);
+                _logger.LogInformation("Duyệt kích hoạt bạn đọc: {ReaderId} bởi {StaffId}", readerId, staffId);
+                return ResponseModel.Ok(null,
+                    "Đã duyệt kích hoạt tài khoản bạn đọc. Vui lòng yêu cầu bạn đọc đăng nhập lại để cập nhật trạng thái.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi duyệt kích hoạt bạn đọc {ReaderId} bởi {StaffId}", readerId, staffId);
+                return ResponseModel.Fail(ex.Message);
+            }
+        }
+
+        public async Task<ResponseModel> tuchoikichhoat(Guid readerId, Guid staffId)
+        {
+            try
+            {
+                await _readerRepo.TuChoiYeuCauKichHoatAsync(readerId, staffId);
+                _logger.LogInformation("Từ chối kích hoạt bạn đọc: {ReaderId} bởi {StaffId}", readerId, staffId);
+                return ResponseModel.Ok(null,
+                    "Đã từ chối yêu cầu kích hoạt và khoá tài khoản bạn đọc. Vui lòng yêu cầu bạn đọc liên hệ thư viện.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi từ chối kích hoạt bạn đọc {ReaderId} bởi {StaffId}", readerId, staffId);
+                return ResponseModel.Fail(ex.Message);
+            }
+        }
+
         public async Task<ResponseModel> dangkymoi(ReaderModel model)
         {
             if (string.IsNullOrWhiteSpace(model.hoten))   return ResponseModel.Fail("Họ tên không được để trống.");
@@ -219,8 +280,8 @@ namespace BLL
                         col.Item().Text(t => { t.Span("Số thẻ: ").Bold();        t.Span(reader.so_the); });
                         col.Item().Text(t => { t.Span("Họ tên: ").Bold();        t.Span(reader.hoten); });
                         col.Item().Text(t => { t.Span("Email: ").Bold();         t.Span(reader.email); });
-                        col.Item().Text(t => { t.Span("Số điện thoại: ").Bold(); t.Span(reader.sodienthoai); });
-                        col.Item().Text(t => { t.Span("Địa chỉ: ").Bold();       t.Span(reader.diachi); });
+                        col.Item().Text(t => { t.Span("Số điện thoại: ").Bold(); t.Span(reader.sodienthoai ?? string.Empty); });
+                        col.Item().Text(t => { t.Span("Địa chỉ: ").Bold();       t.Span(reader.diachi ?? string.Empty); });
                         col.Item().Text(t => { t.Span("Ngày cấp: ").Bold();      t.Span(reader.ngaycap?.ToString("dd/MM/yyyy") ?? "-"); });
                         col.Item().Text(t => { t.Span("Ngày hết hạn: ").Bold();  t.Span(reader.ngayhethan?.ToString("dd/MM/yyyy") ?? "-"); });
                         col.Item().Text(t => { t.Span("Giới hạn mượn: ").Bold(); t.Span($"{reader.somughin} cuốn/lượt"); });

@@ -3,6 +3,7 @@
 // API: GET  /api/Book/search?keyword=&theloai=&page=&pageSize=  (Anonymous)
 //      GET  /api/Reader/{id}                                     → lấy somughin
 //      POST /api/Loan/mine   { book_ids[], due_date }              → tạo phiếu từ giỏ
+//      POST /api/Reader/me/activation/request                     → gửi yêu cầu kích hoạt
 // ==========================================================================
 
 // Số ngày mặc định cho mỗi lần mượn
@@ -25,10 +26,14 @@ document.addEventListener('DOMContentLoaded', () => {
         napdsTheLoai();
         traCuuSach(); // hiển thị toàn bộ sách khi vào trang
 
-        // Chỉ bạn đọc mới được tự mượn từ giỏ hàng
-        if (LaBanDoc() && !DangChoThanhToan()) {
-            napsoihanGioHang();
-            document.getElementById('btnGioHang').style.display = 'inline-block';
+        // Chỉ bạn đọc mới dùng các chức năng kích hoạt/mượn
+        if (LaBanDoc()) {
+            KhoiTaoTheKichHoat();
+
+            if (!DangBiChanOnboarding()) {
+                napsoihanGioHang();
+                document.getElementById('btnGioHang').style.display = 'inline-block';
+            }
         }
     }
 });
@@ -40,8 +45,75 @@ function LaBanDoc() {
     return role === 'bandoc' || role === 'reader';
 }
 
+function LayOnboardingStatus() {
+    return Number(JSON.parse(localStorage.getItem('user') || '{}').onboarding_status);
+}
+
 function DangChoThanhToan() {
-    return Number(JSON.parse(localStorage.getItem('user') || '{}').onboarding_status) === 1;
+    return LayOnboardingStatus() === 1;
+}
+
+function DangBiChanOnboarding() {
+    const status = LayOnboardingStatus();
+    return status === 1 || status === 2 || status === 4;
+}
+
+function CapNhatOnboardingStatusLocal(statusMoi) {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    user.onboarding_status = statusMoi;
+    localStorage.setItem('user', JSON.stringify(user));
+}
+
+function KhoiTaoTheKichHoat() {
+    const card = document.getElementById('activationCard');
+    const text = document.getElementById('activationStatusText');
+    const btn = document.getElementById('btnActivationRequest');
+    if (!card || !text || !btn) return;
+
+    card.style.display = 'block';
+    const status = LayOnboardingStatus();
+
+    if (status === 1) {
+        text.textContent = 'Tài khoản đang chờ thanh toán. Sau khi hoàn tất, bấm gửi yêu cầu để thư viện duyệt kích hoạt.';
+        btn.style.display = 'inline-block';
+        btn.onclick = GuiYeuCauKichHoat;
+        return;
+    }
+
+    btn.style.display = 'none';
+    if (status === 2) {
+        text.textContent = 'Yêu cầu kích hoạt đang chờ thư viện duyệt. Nếu vừa được duyệt, hãy đăng nhập lại để cập nhật quyền mượn.';
+    } else if (status === 4) {
+        text.textContent = 'Yêu cầu kích hoạt đã bị từ chối. Vui lòng liên hệ thư viện để được hỗ trợ.';
+    } else if (status === 3) {
+        text.textContent = 'Tài khoản đã được kích hoạt đầy đủ.';
+    } else {
+        text.textContent = 'Trạng thái onboarding không yêu cầu thao tác thêm.';
+    }
+}
+
+async function GuiYeuCauKichHoat() {
+    const btn = document.getElementById('btnActivationRequest');
+    const text = document.getElementById('activationStatusText');
+    if (!btn || !text) return;
+
+    const labelGoc = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = 'Đang gửi...';
+
+    try {
+        const res = await window.api.post('/Reader/me/activation/request', {});
+        if (!res.success) throw new Error(res.message || 'Không gửi được yêu cầu kích hoạt.');
+
+        CapNhatOnboardingStatusLocal(2);
+        alert(res.message || 'Đã gửi yêu cầu kích hoạt. Vui lòng chờ thư viện duyệt.');
+        KhoiTaoTheKichHoat();
+        document.getElementById('btnGioHang').style.display = 'none';
+    } catch (err) {
+        alert(err.message || 'Không gửi được yêu cầu kích hoạt.');
+        btn.disabled = false;
+        btn.innerHTML = labelGoc;
+    }
 }
 
 // Lấy giới hạn mượn (somughin) và số cuốn đang mượn của chính bạn đọc đang đăng nhập
@@ -344,7 +416,7 @@ async function traCuuSach() {
     if (keyword) params.set('keyword', keyword);
     if (theloai) params.set('theloai', theloai);
 
-    const hienThiGio = LaBanDoc();
+    const hienThiGio = LaBanDoc() && !DangBiChanOnboarding();
 
     try {
         const res = await window.api.get(`/Book/search?${params.toString()}`);

@@ -22,9 +22,10 @@
             <div class="header-search">
                 <i class="fa-solid fa-magnifying-glass text-muted"></i>
                 <input id="accountSearch" placeholder="Tìm theo tên, email..." oninput="TaiTaiKhoan()">
-                <select id="accountType" onchange="TaiTaiKhoan()" style="border:none;background:transparent">
+                <select id="accountType" onchange="DoiLoaiTaiKhoan()" style="border:none;background:transparent">
                     <option value="reader">Độc giả</option>
                     <option value="staff">Thủ thư</option>
+                    <option value="confirmation">Xác nhận tài khoản</option>
                 </select>
             </div>
             <div class="header-user"><span style="font-weight:500" id="userNameDisplay">Admin User</span><div class="avatar">A</div></div>
@@ -63,24 +64,28 @@
             <label>Số thẻ (chỉ đọc)
                 <input class="form-control" id="readerSoThe" readonly style="background:#f0f0f0">
             </label>
-            <label>Ngày cấp (chỉ đọc)
-                <input class="form-control" id="readerNgayCap" readonly style="background:#f0f0f0">
+            <label>Ngày cấp
+                <input class="form-control" id="readerNgayCap" type="date">
             </label>
-            <label>Trạng thái (chỉ đọc)
-                <input class="form-control" id="readerTrangThai" readonly style="background:#f0f0f0">
+            <label>Trạng thái
+                <select class="form-control" id="readerTrangThai">
+                    <option value="0">Hoạt động</option>
+                    <option value="1">Hết hạn</option>
+                    <option value="2">Bị khoá</option>
+                </select>
             </label>
-            <label>Số mũ ghìn (chỉ đọc)
-                <input class="form-control" id="readerSoMuGhin" readonly style="background:#f0f0f0">
+            <label>Số sách được mượn
+                <input class="form-control" id="readerSoMuGhin" type="number" min="1" step="1" required>
             </label>
             <!-- Editable -->
             <label>Họ tên <span style="color:red">*</span>
                 <input class="form-control" id="readerHoTen" required maxlength="200">
             </label>
             <label>Số điện thoại
-                <input class="form-control" id="readerSoDienThoai" maxlength="20">
+                <input class="form-control" id="readerSoDienThoai" maxlength="15">
             </label>
             <label>Địa chỉ
-                <textarea class="form-control" id="readerDiaChi" rows="2" maxlength="500"></textarea>
+                <textarea class="form-control" id="readerDiaChi" rows="2" maxlength="300"></textarea>
             </label>
             <label>Ngày hết hạn
                 <input class="form-control" id="readerNgayHetHan" type="date">
@@ -109,19 +114,22 @@
             <label>Email <span style="color:red">*</span>
                 <input class="form-control" id="staffEmail" type="email" required maxlength="200">
             </label>
-            <label>Số điện thoại
-                <input class="form-control" id="staffSdt" maxlength="20">
+            <label id="lblStaffSdt" style="display:none">Số điện thoại
+                <input class="form-control" id="staffSdt" maxlength="15">
             </label>
             <label>Tên đăng nhập <span style="color:red">*</span>
                 <input class="form-control" id="staffTenDangNhap" required maxlength="100">
             </label>
-            <label id="lblStaffMatKhau">Mật khẩu <span style="color:red">*</span>
+            <label id="lblStaffMatKhau">Mật khẩu <span id="staffPwRequired" style="color:red">*</span>
                 <input class="form-control" id="staffMatKhau" type="password" minlength="6" autocomplete="new-password">
             </label>
             <p class="text-muted" style="font-size:.85rem" id="staffPwHint"></p>
             <div class="d-flex justify-between" style="margin-top:16px">
                 <button type="button" class="btn btn-secondary" onclick="DongFormStaff()">Huỷ</button>
-                <button class="btn btn-primary" type="submit">Lưu</button>
+                <div style="display:flex;gap:8px">
+                    <button type="button" class="btn" id="btnKhoaMoStaff" onclick="KhoaMoThuThu()" style="display:none"></button>
+                    <button class="btn btn-primary" type="submit">Lưu</button>
+                </div>
             </div>
         </form>
     </div>
@@ -131,6 +139,6 @@
 <script src="../../js/auth.js?v=3"></script>
 <script src="../../js/sidebar.js"></script>
 <script src="../../js/page-guard.js"></script>
-<script src="../../js/accounts.js?v=2"></script>
+<script src="../../js/accounts.js?v=3"></script>
 </body>
 </html>

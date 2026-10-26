@@ -50,6 +50,31 @@
                 <button class="btn btn-primary" onclick="MoModalThemDocGia()"><i class="fa-solid fa-user-plus"></i> Thêm Độc Giả</button>
             </div>
 
+            <div class="card" style="margin-bottom:12px;">
+                <div class="d-flex justify-between align-center" style="margin-bottom:8px;gap:8px;flex-wrap:wrap;">
+                    <h3 style="margin:0;">Yêu Cầu Kích Hoạt Chờ Duyệt</h3>
+                    <button class="btn btn-secondary" style="padding:6px 12px" onclick="TaiDanhSachKichHoatChoDuyet()">
+                        <i class="fa-solid fa-rotate"></i> Làm mới
+                    </button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Họ Tên</th>
+                                <th>Số Thẻ</th>
+                                <th>Email</th>
+                                <th>Onboarding</th>
+                                <th>Thao Tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="activationPendingTableBody">
+                            <tr><td colspan="5" style="text-align:center">Đang tải danh sách yêu cầu...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <div class="card">
                 <div class="table-responsive">
                     <table class="table">
@@ -116,7 +141,7 @@
 <script src="../../js/api.js?v=3"></script>
 <script src="../../js/auth.js?v=3"></script>
 <script src="../../js/sidebar.js?v=1"></script>
-<script src="../../js/readers.js?v=3"></script>
+<script src="../../js/readers.js?v=4"></script>
 <script>
     YeuCauXacThuc(['admin','Admin','thuthu','ThuThu']);
     const user = JSON.parse(localStorage.getItem('user') || '{}');

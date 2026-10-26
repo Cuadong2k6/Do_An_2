@@ -13,6 +13,7 @@ namespace Model.Staff
         public string hoten { get; set; } = string.Empty;
         public string email { get; set; } = string.Empty;
         public string taikhoan { get; set; } = string.Empty;
+        public string? sodienthoai { get; set; }
         public string role { get; set; } = string.Empty;
         public string? image_url { get; set; }
         public DateTime? ngaytao { get; set; }
@@ -41,6 +42,9 @@ namespace Model.Staff
         [MinLength(6, ErrorMessage = "Mật khẩu tối thiểu 6 ký tự.")]
         public string matkhau { get; set; } = string.Empty;
 
+        [MaxLength(15, ErrorMessage = "Số điện thoại tối đa 15 ký tự.")]
+        public string? sodienthoai { get; set; }
+
         [MaxLength(500)]
         public string? image_url { get; set; }
     }
@@ -64,6 +68,10 @@ namespace Model.Staff
         /// <summary>Nếu null = giữ nguyên mật khẩu cũ. Nếu có = hash BCrypt mới.</summary>
         [MinLength(6, ErrorMessage = "Mật khẩu tối thiểu 6 ký tự.")]
         public string? matkhau { get; set; }
+
+        /// <summary>Null = giữ nguyên; chuỗi rỗng = xoá số điện thoại.</summary>
+        [MaxLength(15, ErrorMessage = "Số điện thoại tối đa 15 ký tự.")]
+        public string? sodienthoai { get; set; }
 
         [MaxLength(500)]
         public string? image_url { get; set; }

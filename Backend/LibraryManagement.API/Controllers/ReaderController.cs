@@ -119,6 +119,47 @@ namespace LibraryManagement.API.Controllers
             var result = await _readerService.MoKhoaBandocAsync(id);
             return result.success ? Ok(result) : BadRequest(result);
         }
+
+        [HttpPost("me/activation/request")]
+        [Authorize(Roles = "BanDoc")]
+        public async Task<IActionResult> YeuCauKichHoat()
+        {
+            if (!Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var readerId))
+                return Unauthorized(ResponseModel.Fail("Token không hợp lệ."));
+
+            var result = await _readerService.yeucaukichhoat(readerId);
+            return result.success ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpGet("activations/pending")]
+        [Authorize(Roles = "Admin,ThuThu")]
+        public async Task<IActionResult> DanhSachKichHoatChoDuyet()
+        {
+            var result = await _readerService.danhsachkichhoatchoduyet();
+            return result.success ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpPut("activations/{id:guid}/approve")]
+        [Authorize(Roles = "Admin,ThuThu")]
+        public async Task<IActionResult> DuyetKichHoat(Guid id)
+        {
+            if (!Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var staffId))
+                return Unauthorized(ResponseModel.Fail("Token không hợp lệ."));
+
+            var result = await _readerService.duyetkichhoat(id, staffId);
+            return result.success ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpPut("activations/{id:guid}/reject")]
+        [Authorize(Roles = "Admin,ThuThu")]
+        public async Task<IActionResult> TuChoiKichHoat(Guid id)
+        {
+            if (!Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var staffId))
+                return Unauthorized(ResponseModel.Fail("Token không hợp lệ."));
+
+            var result = await _readerService.tuchoikichhoat(id, staffId);
+            return result.success ? Ok(result) : BadRequest(result);
+        }
     }
 
     public class RenewCardDto

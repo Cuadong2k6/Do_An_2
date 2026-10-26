@@ -53,6 +53,39 @@ namespace DAL
             });
         }
 
+        public async Task YeuCauKichHoatAsync(Guid readerId)
+        {
+            await _db.ExecuteAsync("sp_reader_activation_request", new { reader_id = readerId });
+        }
+
+        public async Task<IEnumerable<dynamic>> LayDanhSachKichHoatChoDuyetAsync()
+        {
+            using var conn = _db.GetConnection();
+            conn.Open();
+
+            return await conn.QueryAsync(
+                "sp_reader_activation_pending",
+                commandType: CommandType.StoredProcedure);
+        }
+
+        public async Task DuyetYeuCauKichHoatAsync(Guid readerId, Guid staffId)
+        {
+            await _db.ExecuteAsync("sp_reader_activation_approve", new
+            {
+                reader_id = readerId,
+                staff_id = staffId
+            });
+        }
+
+        public async Task TuChoiYeuCauKichHoatAsync(Guid readerId, Guid staffId)
+        {
+            await _db.ExecuteAsync("sp_reader_activation_reject", new
+            {
+                reader_id = readerId,
+                staff_id = staffId
+            });
+        }
+
         /// <summary>Số cuốn bạn đọc đang mượn (chưa trả, tính cả phiếu quá hạn)</summary>
         public async Task<int> sodangmuon(Guid readerId)
         {
@@ -84,6 +117,7 @@ namespace DAL
                 sodienthoai = model.sodienthoai,
                 diachi      = model.diachi,
                 trangthai   = model.trangthai,
+                ngaycap     = model.ngaycap,
                 ngayhethan  = model.ngayhethan,
                 somughin    = model.somughin
             });
